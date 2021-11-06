@@ -14,3 +14,10 @@ scala : 2.13.6
 scalatest : 3.2.9 (+scalatestplus 3.2.9.0)
 junit : 4.13
 ```
+
+## Plan 
+[Initial-plan](https://github.com/candymate/cs434-project/wiki/Initial-Plan)
+
+## Meeting
+[11/05](https://github.com/candymate/cs434-project/wiki/%ED%9A%8C%EC%9D%98%EB%A1%9D#1105-2000--2200)
+
