@@ -7,7 +7,7 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class MainSuite extends FunSuite {
-    test("Root project test") {
+    test("Master project test") {
         assert(1 == 1)
     }
 }
