@@ -1,4 +1,4 @@
-name: Master Unit Test
+name: Worker Unit Test
 
 on:
   push:
