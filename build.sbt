@@ -1,5 +1,4 @@
-ThisBuild / name := "cs434-project"
-
+name := "cs434-project"
 ThisBuild / version := "1.0.0"
 ThisBuild / scalaVersion := "2.13.6"
 
@@ -14,11 +13,10 @@ lazy val commonSettings = Seq(
 )
 
 lazy val root = (project in file("."))
-    .dependsOn(Master)
-    .dependsOn(Worker)
     .settings(
         libraryDependencies ++= commonSettings
     )
+    .aggregate(Master, Worker)
 
 lazy val Master = (project in file("Master"))
     .settings(
