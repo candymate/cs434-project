@@ -16,7 +16,6 @@ lazy val root = (project in file("."))
     .settings(
         libraryDependencies ++= commonSettings
     )
-    .aggregate(Master, Worker)
 
 lazy val Master = (project in file("Master"))
     .settings(
