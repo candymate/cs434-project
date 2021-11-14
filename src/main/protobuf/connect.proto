@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package protobuf;
+
+service connectService {
+  rpc connect(ConnectRequest) returns (Empty) {}
+}
+
+message ConnectRequest {
+
+}
+
+message Empty {
+}
