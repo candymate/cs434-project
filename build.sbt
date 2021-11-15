@@ -25,31 +25,19 @@ lazy val root = (project in file("."))
         libraryDependencies ++= commonSettings,
         Compile / PB.targets := Seq(
             scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
-        ),
-        assembly / assemblyMergeStrategy := {
-            case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-            case x => MergeStrategy.first
-        }
+        )
     )
 
 lazy val Master = (project in file("Master"))
     .settings(
         libraryDependencies ++= commonSettings,
-        assembly / assemblyJarName := s"${name.value}.jar",
-        assembly / assemblyMergeStrategy := {
-            case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-            case x => MergeStrategy.first
-        }
+        assembly / assemblyJarName := s"${name.value}.jar"
     )
     .dependsOn(root)
 
 lazy val Worker = (project in file("Worker"))
     .settings(
         libraryDependencies ++= commonSettings,
-        assembly / assemblyJarName := s"${name.value}.jar",
-        assembly / assemblyMergeStrategy := {
-            case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-            case x => MergeStrategy.first
-        }
+        assembly / assemblyJarName := s"${name.value}.jar"
     )
     .dependsOn(root)

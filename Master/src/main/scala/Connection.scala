@@ -5,15 +5,15 @@ import protobuf.connect.{ConnectRequest, Empty, connectServiceGrpc}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class Connection(numberOfRequiredConnections: Int) { self =>
+class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     private[this] var server: Server = null
 
     private def start(): Unit = {
-        server = ServerBuilder.forPort(MasterServerConfig.port)
-            .addService(connectServiceGrpc.bindService(new connectService, ExecutionContext.global))
-            .build.start
+        val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
+        serverBuilder.addService(connectServiceGrpc.bindService(new connectService, executionContext))
+        server = serverBuilder.build().start()
         log.info("Server started, listening on " + MasterServerConfig.port)
         sys.addShutdownHook {
             System.err.println("*** shutting down gRPC server since JVM is shutting down")
@@ -43,4 +43,7 @@ class Connection(numberOfRequiredConnections: Int) { self =>
             Future.successful(new Empty())
         }
     }
+
+    start()
+    blockUntilShutdown()
 }
