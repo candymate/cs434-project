@@ -1,6 +1,11 @@
+import org.slf4j.LoggerFactory
+
 object Worker {
     def main(args: Array[String]): Unit = {
+        val logger = LoggerFactory.getLogger(getClass)
+
         // argument handling
+
 
         // connection phase (server not required in worker)
         new Connection()

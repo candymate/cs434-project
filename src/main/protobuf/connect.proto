@@ -7,7 +7,7 @@ service connectService {
 }
 
 message ConnectRequest {
-
+  string ip = 1;
 }
 
 message Empty {

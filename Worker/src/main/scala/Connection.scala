@@ -1,15 +1,37 @@
-import io.grpc.ManagedChannelBuilder
+import io.grpc.{ManagedChannelBuilder, StatusRuntimeException}
+import org.slf4j.LoggerFactory
+import protobuf.connect.{ConnectRequest, connectServiceGrpc}
+
+import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 
 class Connection {
-    // val channel = ManagedChannelBuilder
-    // val blockingStub =
+    val logger = LoggerFactory.getLogger(getClass)
+    // will change
+    val managedChannelBuilder = ManagedChannelBuilder.forAddress("localhost", 9000)
+    managedChannelBuilder.usePlaintext()
+
+    val channel = managedChannelBuilder.build()
+    val blockingStub = connectServiceGrpc.blockingStub(channel)
 
     def shutdown(): Unit = {
-        // shutdown server
+        logger.info("worker shutdown")
+        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
     }
 
     def connect(): Unit = {
-        // build message and send the message to master server
+        logger.info("trying to connect to master....")
+        val request = new ConnectRequest(InetAddress.getLocalHost().getHostAddress())
+
+        try {
+            logger.info("connection request sent")
+            val response = blockingStub.connect(request)
+        } catch {
+            case e: StatusRuntimeException => {
+                logger.error("connection rpc failed")
+                sys.exit(1)
+            }
+        }
     }
 
     connect()
