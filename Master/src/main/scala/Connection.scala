@@ -9,6 +9,7 @@ class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionCo
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     private[this] var server: Server = null
+    private[this] var currentConnection: Int = 0
 
     private def start(): Unit = {
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
@@ -39,8 +40,13 @@ class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionCo
     // if numberOfRequiredConnections == currentConnections, then stop the server
 
     private class connectService extends connectServiceGrpc.connectService {
-        override def connect(request: ConnectRequest): Future[Empty] = {
-            Future.successful(new Empty())
+        override def connect(request: ConnectRequest): Future[Empty] = synchronized {
+            currentConnection += 1
+            if (currentConnection == numberOfRequiredConnections) {
+                println("connection information")
+                server.shutdown()
+            }
+            Future.successful(Empty())
         }
     }
 
