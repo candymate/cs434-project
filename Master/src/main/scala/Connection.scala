@@ -52,18 +52,17 @@ class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionCo
             lock.lock()
             try {
                 clientInfoMap.put(clientInfoMap.size + 1, new ClientInfo(request.ip, 9000))
+                if (numberOfRequiredConnections == clientInfoMap.size) {
+                    println(InetAddress.getLocalHost().getHostAddress())
+
+                    for (
+                        i <- 0 until clientInfoMap.size
+                    ) yield (println(clientInfoMap.get(i + 1).get.ip))
+
+                    server.shutdown()
+                }
             } finally {
                 lock.unlock()
-            }
-
-            if (numberOfRequiredConnections == clientInfoMap.size) {
-                println(InetAddress.getLocalHost().getHostAddress())
-
-                for (
-                    i <- 0 until clientInfoMap.size
-                ) yield (println(clientInfoMap.get(i + 1).get.ip))
-
-                server.shutdown()
             }
 
             Future.successful(Empty())
