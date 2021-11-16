@@ -1,15 +1,18 @@
-import config.MasterServerConfig
+import config.{ClientInfo, MasterServerConfig}
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
 import protobuf.connect.{ConnectRequest, Empty, connectServiceGrpc}
 
+import java.net.InetAddress
+import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.{ExecutionContext, Future}
 
 class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     private[this] var server: Server = null
-    private[this] var currentConnection: Int = 0
+    // key: machine order, value: ClientInfo
+    private[this] var clientInfoMap = new ConcurrentHashMap[Int, ClientInfo]()
 
     private def start(): Unit = {
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
@@ -40,12 +43,20 @@ class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionCo
     // if numberOfRequiredConnections == currentConnections, then stop the server
 
     private class connectService extends connectServiceGrpc.connectService {
-        override def connect(request: ConnectRequest): Future[Empty] = synchronized {
-            currentConnection += 1
-            if (currentConnection == numberOfRequiredConnections) {
-                println("connection information")
+        override def connect(request: ConnectRequest): Future[Empty] = {
+            log.info("connection established")
+            clientInfoMap.put(clientInfoMap.size() + 1, new ClientInfo(request.ip, 9000))
+
+            if (numberOfRequiredConnections == clientInfoMap.size()) {
+                println(InetAddress.getLocalHost().getHostAddress())
+
+                for (
+                    i <- 0 until clientInfoMap.size()
+                ) yield (println(clientInfoMap.get(i + 1).ip))
+
                 server.shutdown()
             }
+
             Future.successful(Empty())
         }
     }
