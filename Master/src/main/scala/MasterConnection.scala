@@ -8,12 +8,12 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
-class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionContext) { self =>
+class MasterConnection(numberOfRequiredConnections: Int, executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
-    private[this] var server: Server = null
+    var server: Server = null
     // key: machine order, value: ClientInfo
-    private[this] var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
+    var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
 
     private def start(): Unit = {
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)

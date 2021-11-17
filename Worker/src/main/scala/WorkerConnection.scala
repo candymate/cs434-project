@@ -6,7 +6,7 @@ import protobuf.connect.{ConnectRequest, connectServiceGrpc}
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
-class Connection(masterConfig: MasterConfig) {
+class WorkerConnection(masterConfig: MasterConfig) {
     val logger = LoggerFactory.getLogger(getClass)
     // will change
     val managedChannelBuilder = ManagedChannelBuilder.forAddress(masterConfig.ip, masterConfig.port)

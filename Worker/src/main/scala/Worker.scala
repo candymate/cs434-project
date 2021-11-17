@@ -15,7 +15,7 @@ object Worker {
 
         // connection phase (server not required in worker)
         log.info("Connection phase start")
-        new Connection(masterIpPortInfo)
+        new WorkerConnection(masterIpPortInfo)
         log.info("Connection phase successfully finished")
 
         // sampling phase (server required in worker)

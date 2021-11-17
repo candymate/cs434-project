@@ -25,7 +25,7 @@ object Master {
 
         log.info("Connection phase start")
         // connection phase (server required in master)
-        new Connection(slaveNum, ExecutionContext.global)
+        new MasterConnection(slaveNum, ExecutionContext.global)
         log.info("Connection phase successfully finished")
 
         // sampling phase (server not required in master)
