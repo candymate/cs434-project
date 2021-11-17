@@ -17,7 +17,9 @@ lazy val commonSettings = Seq(
     "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
     // logging
     "org.slf4j" % "slf4j-api" % "1.7.32",
-    "org.slf4j" % "slf4j-simple" % "1.7.32"
+    "org.slf4j" % "slf4j-simple" % "1.7.32",
+    // mockito for testing
+    "org.mockito" %% "mockito-scala-scalatest" % "1.16.46" % "test"
 )
 
 lazy val root = (project in file("."))

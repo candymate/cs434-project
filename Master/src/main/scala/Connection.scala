@@ -47,17 +47,17 @@ class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionCo
         private val lock = new ReentrantLock()
 
         override def connect(request: ConnectRequest): Future[Empty] = {
-            log.info("connection established")
+            log.info("connection established with " + request.ip + ":" + 9000)
 
             lock.lock()
             try {
                 clientInfoMap.put(clientInfoMap.size + 1, new ClientInfo(request.ip, 9000))
                 if (numberOfRequiredConnections == clientInfoMap.size) {
-                    println(InetAddress.getLocalHost().getHostAddress())
+                    log.info(s"Master successfully connected to ${numberOfRequiredConnections} client(s)")
 
-                    for (
-                        i <- 0 until clientInfoMap.size
-                    ) yield (println(clientInfoMap.get(i + 1).get.ip))
+                    println(s"${InetAddress.getLocalHost().getHostAddress()}:9000")
+
+                    clientInfoMap foreach {case(_, v: ClientInfo) => print(s"${v.ip} ")}
 
                     server.shutdown()
                 }
@@ -69,6 +69,7 @@ class Connection(numberOfRequiredConnections: Int, executionContext: ExecutionCo
         }
     }
 
+    log.info(s"started master server expecting ${numberOfRequiredConnections} slave(s)")
     start()
     blockUntilShutdown()
 }

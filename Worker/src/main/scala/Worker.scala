@@ -1,14 +1,22 @@
+import config.MasterConfig
 import org.slf4j.LoggerFactory
+
+import java.io.File
 
 object Worker {
     def main(args: Array[String]): Unit = {
-        val logger = LoggerFactory.getLogger(getClass)
+        val log = LoggerFactory.getLogger(getClass)
 
         // argument handling
-
+        val masterIpPortInfo: MasterConfig = new MasterConfig(args(0).split(":")(0),
+            args(0).split(":")(1).toInt)
+        val inputFilePathList: Array[File] = args.slice(2, args.length - 2).map{ case filePath: String => new File(filePath) }
+        val outputFilePath: File = new File(args.last)
 
         // connection phase (server not required in worker)
-        new Connection()
+        log.info("Connection phase start")
+        new Connection(masterIpPortInfo)
+        log.info("Connection phase successfully finished")
 
         // sampling phase (server required in worker)
 

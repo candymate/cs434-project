@@ -1,3 +1,4 @@
+import config.MasterConfig
 import io.grpc.{ManagedChannelBuilder, StatusRuntimeException}
 import org.slf4j.LoggerFactory
 import protobuf.connect.{ConnectRequest, connectServiceGrpc}
@@ -5,10 +6,10 @@ import protobuf.connect.{ConnectRequest, connectServiceGrpc}
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
-class Connection {
+class Connection(masterConfig: MasterConfig) {
     val logger = LoggerFactory.getLogger(getClass)
     // will change
-    val managedChannelBuilder = ManagedChannelBuilder.forAddress("localhost", 9000)
+    val managedChannelBuilder = ManagedChannelBuilder.forAddress(masterConfig.ip, masterConfig.port)
     managedChannelBuilder.usePlaintext()
 
     val channel = managedChannelBuilder.build()
@@ -20,7 +21,7 @@ class Connection {
     }
 
     def connect(): Unit = {
-        logger.info("trying to connect to master....")
+        logger.info(s"trying to connect to master ${masterConfig.ip}:${masterConfig.port} ")
         val request = new ConnectRequest(InetAddress.getLocalHost().getHostAddress())
 
         try {

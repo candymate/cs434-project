@@ -4,11 +4,11 @@ import scala.concurrent.ExecutionContext
 
 object Master {
     def main(args: Array[String]): Unit = {
-        val logger = LoggerFactory.getLogger(getClass)
+        val log = LoggerFactory.getLogger(getClass)
 
         // argument handling
         if (args.length != 1) {
-            logger.error("[*] master <slave #>")
+            log.error("Wrong number of arguments")
             sys.exit(1)
         }
 
@@ -17,16 +17,16 @@ object Master {
                 args(0).toInt
             } catch {
                 case e: Exception => {
-                    logger.error("[*] master <slave #>")
+                    log.error("Failed to parse args")
                     sys.exit(1)
                 }
             }
         }
 
-        logger.info("[*] master with {0} slaves", slaveNum.toString)
-
+        log.info("Connection phase start")
         // connection phase (server required in master)
         new Connection(slaveNum, ExecutionContext.global)
+        log.info("Connection phase successfully finished")
 
         // sampling phase (server not required in master)
 
