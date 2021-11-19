@@ -22,7 +22,19 @@ lazy val commonSettings = Seq(
     "org.mockito" %% "mockito-scala-scalatest" % "1.16.46" % "test"
 )
 
-lazy val root = (project in file("."))
+lazy val IntegrationTesting = (project in file("."))
+    .settings(
+        libraryDependencies ++= commonSettings,
+        Compile / PB.targets := Seq(
+            scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
+        )
+    )
+    .aggregate(Master)
+    .aggregate(Worker)
+    .dependsOn(Master)
+    .dependsOn(Worker)
+
+lazy val root = (project in file("Root"))
     .settings(
         libraryDependencies ++= commonSettings,
         Compile / PB.targets := Seq(

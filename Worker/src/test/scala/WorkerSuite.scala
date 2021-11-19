@@ -31,10 +31,4 @@ class WorkerSuite extends AnyFunSuite {
         }
     }
 
-
-
-    test("Worker connect request test") {
-        val connectionService = new ServerWorkerConnectionMock()
-        val connection = new WorkerConnection(new MasterConfig("localhost", 9000))
-    }
 }
