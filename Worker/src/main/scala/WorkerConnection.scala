@@ -1,18 +1,22 @@
 import config.MasterConfig
-import io.grpc.{ManagedChannelBuilder, StatusRuntimeException}
+import io.grpc.{ManagedChannel, ManagedChannelBuilder, StatusRuntimeException}
 import org.slf4j.LoggerFactory
 import protobuf.connect.{ConnectRequest, connectServiceGrpc}
 
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
-class WorkerConnection(masterConfig: MasterConfig) {
+class WorkerConnection(masterConfig: MasterConfig, channelParam: ManagedChannel) {
     val logger = LoggerFactory.getLogger(getClass)
+    var channel = channelParam
     // will change
-    val managedChannelBuilder = ManagedChannelBuilder.forAddress(masterConfig.ip, masterConfig.port)
-    managedChannelBuilder.usePlaintext()
 
-    val channel = managedChannelBuilder.build()
+    if (channelParam == null) {
+        val managedChannelBuilder = ManagedChannelBuilder.forAddress(masterConfig.ip, masterConfig.port)
+        managedChannelBuilder.usePlaintext()
+        val channel = managedChannelBuilder.build()
+    }
+
     val blockingStub = connectServiceGrpc.blockingStub(channel)
 
     def shutdown(): Unit = {
