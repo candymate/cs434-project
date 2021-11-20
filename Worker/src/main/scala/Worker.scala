@@ -13,6 +13,11 @@ object Worker {
         val inputFilePathList: Array[File] = args.slice(2, args.length - 2).map{ case filePath: String => new File(filePath) }
         val outputFilePath: File = new File(args.last)
 
+        // worker server start
+        log.info("Worker Server start for communication")
+        val workerServer = new WorkerServer()
+        log.info("Worker Server start completed for communication")
+
         // connection phase (server not required in worker)
         log.info("Connection phase start")
         new WorkerConnection(masterIpPortInfo, null)
