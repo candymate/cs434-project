@@ -18,9 +18,9 @@ message Empty {
 }
 
 message SamplingRequest {
-
+  map<int32, string> ipList = 1;
 }
 
 message SamplingResponse {
-
+  repeated string sampledData = 1;
 }
