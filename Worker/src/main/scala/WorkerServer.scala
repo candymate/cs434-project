@@ -1,11 +1,14 @@
 import config.WorkerServerConfig
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
+import protobuf.connect
 import protobuf.connect.{SamplingRequest, SamplingResponse, restPhaseServiceGrpc}
 
+import java.io.File
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class WorkerServer { self =>
+class WorkerServer (val inputPathFileList: Array[File]) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     var server: Server = null
@@ -34,7 +37,12 @@ class WorkerServer { self =>
     }
 
     private class restPhaseService extends restPhaseServiceGrpc.restPhaseService {
-        override def sample(request: SamplingRequest): Future[SamplingResponse] = ???
+        override def sample(request: SamplingRequest): Future[SamplingResponse] = {
+            log.info("sample request message received... start sampling")
+            Future {
+                new connect.SamplingResponse(WorkerSampling.sampleFromFile(inputPathFileList(0)))
+            }
+        }
     }
 
     start()

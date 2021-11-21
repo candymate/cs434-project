@@ -20,6 +20,7 @@ class MasterSampling(val clientInfoMap: mutable.Map[Int, ClientInfo],
     val lock = new ReentrantLock()
 
     if (channelListParam == null) {
+        channelClientList = Array()
         clientInfoMap foreach {
             case (k: Int, v: ClientInfo) => {
                 val managedChannelBuilder = ManagedChannelBuilder.forAddress(v.ip, v.port)
@@ -37,12 +38,12 @@ class MasterSampling(val clientInfoMap: mutable.Map[Int, ClientInfo],
         )
     }
 
-    def connectToEveryClient(): Unit = {
+    def sendSampleRequestToEveryClient(): Unit = {
         val request = new SamplingRequest(clientInfoMap.map{ case(k, v) => k -> v.ip}.toMap)
-        blockingStubClientList.foreach( x => connect(request, x) )
+        blockingStubClientList.foreach( x => sampleRequest(request, x) )
     }
 
-    def connect(samplingRequest: SamplingRequest, blockingStub: restPhaseServiceBlockingStub): Unit = {
+    def sampleRequest(samplingRequest: SamplingRequest, blockingStub: restPhaseServiceBlockingStub): Unit = {
         try {
             val samplingResponse = blockingStub.sample(samplingRequest)
             lock.lock()
@@ -58,4 +59,6 @@ class MasterSampling(val clientInfoMap: mutable.Map[Int, ClientInfo],
             }
         }
     }
+
+    sendSampleRequestToEveryClient()
 }
