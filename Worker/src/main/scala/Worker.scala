@@ -18,9 +18,6 @@ object Worker {
             }
         }}
 
-        val sampleFile1 = new File("C:\\Users\\jeong\\Desktop\\val.txt")
-        val list = WorkerSampling.sampleFromFile(sampleFile1)
-
         val outputFilePath: File = new File(args.last)
 
         // connection phase (server not required in worker)

@@ -30,7 +30,7 @@ class MainSuite extends AnyFunSuite {
             i <- 0 until numberOfConnection
         ) yield {
             clientConnection :+ Future {
-                val testClient = new WorkerConnection(new MasterConfig("127.0.0.1", 9000))
+                val testClient = new WorkerConnection(new MasterConfig("127.0.0.1", 9000), null)
 
                 testClient.connect()
             }

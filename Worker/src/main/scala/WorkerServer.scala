@@ -7,6 +7,7 @@ import protobuf.connect.{SamplingRequest, SamplingResponse, restPhaseServiceGrpc
 import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.IterableHasAsJava
 
 class WorkerServer (val inputPathFileList: Array[File]) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
@@ -40,7 +41,7 @@ class WorkerServer (val inputPathFileList: Array[File]) { self =>
         override def sample(request: SamplingRequest): Future[SamplingResponse] = {
             log.info("sample request message received... start sampling")
             Future {
-                new connect.SamplingResponse(WorkerSampling.sampleFromFile(inputPathFileList(0)))
+                new connect.SamplingResponse(sampledData = WorkerSampling.sampleFromFile(inputPathFileList(0)))
             }
         }
     }
