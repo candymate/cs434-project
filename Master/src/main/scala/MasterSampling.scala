@@ -9,13 +9,11 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.collection.mutable
 
 class MasterSampling(val clientInfoMap: mutable.Map[Int, ClientInfo],
-                     channelListParam: Array[ManagedChannel],
-                     val numberOfConnection: Int) {
+                     channelListParam: Array[ManagedChannel]) {
     val logger = LoggerFactory.getLogger(getClass)
     var channelClientList: Array[ManagedChannel] = channelListParam
     var blockingStubClientList: Array[restPhaseServiceBlockingStub] = Array()
 
-    var currentConnection: Int = 0
     var sampledData: List[String] = Nil
     val lock = new ReentrantLock()
 
@@ -26,10 +24,13 @@ class MasterSampling(val clientInfoMap: mutable.Map[Int, ClientInfo],
                 val managedChannelBuilder = ManagedChannelBuilder.forAddress(v.ip, v.port)
                 managedChannelBuilder.usePlaintext()
                 val channel = managedChannelBuilder.build()
-                channelClientList :+ channel
-                blockingStubClientList :+ blockingStub(channel)
+                channelClientList = channelClientList :+ channel
             }
         }
+    }
+
+    channelClientList foreach {
+        channel => blockingStubClientList = blockingStubClientList :+ blockingStub(channel)
     }
 
     def shutdown(): Unit = {
@@ -48,7 +49,6 @@ class MasterSampling(val clientInfoMap: mutable.Map[Int, ClientInfo],
             val samplingResponse = blockingStub.sample(samplingRequest)
             lock.lock()
             try {
-                currentConnection = currentConnection + 1
                 sampledData = sampledData ++ samplingResponse.sampledData
             } finally {
                 lock.unlock()

@@ -14,8 +14,6 @@ object WorkerSampling {
             numberOfLines
         }
 
-        val t = 1
-
         try {
             fromFile(inputFilePath.getPath).getLines.take(numberOfFetchedRecords).toList.map(_.slice(0, 10))
         } finally {
