@@ -6,16 +6,18 @@ import protobuf.connect.{SamplingRequest, SamplingResponse, restPhaseServiceGrpc
 
 import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-class WorkerServer (val inputPathFileList: Array[File]) { self =>
+class WorkerServer (val inputPathFileList: Array[File], executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     var server: Server = null
 
     private def start(): Unit = {
         val serverBuilder = ServerBuilder.forPort(WorkerServerConfig.port)
+        serverBuilder.addService(restPhaseServiceGrpc.bindService(new restPhaseService, executionContext))
+        server = serverBuilder.build().start()
 
         log.info("Worker Server started, listening on " + WorkerServerConfig.port)
         sys.addShutdownHook {

@@ -2,6 +2,7 @@ import config.MasterConfig
 import org.slf4j.LoggerFactory
 
 import java.io.File
+import scala.concurrent.ExecutionContext
 
 object Worker {
     def main(args: Array[String]): Unit = {
@@ -27,7 +28,7 @@ object Worker {
 
         // worker server start
         log.info("Worker Server start for communication")
-        val workerServer = new WorkerServer(inputFilePathList)
+        val workerServer = new WorkerServer(inputFilePathList, ExecutionContext.global)
         log.info("Worker Server start completed for communication")
 
         // sampling phase (server required in worker)
