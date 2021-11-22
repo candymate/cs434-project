@@ -50,12 +50,30 @@ class MultiFileSuite extends AnyFunSuite {
     mf1.getFileList()(0).delete()
   }
 
-  test("write multiple files test") {
+  test("write and rename multiple files test") {
     val mf1 = new MultiFileWrite("Worker/src/test/files/merge")
     (1 to 400000).foreach(x => mf1.writeOneRecord(new Record("ABCDEFGHIJ", "  00000000000000000000000000000000  0000222200002222000022220000222200002222000000001111\r\n")))
+
     assert(md5sum(Source.fromFile(mf1.getFileList()(0).getAbsolutePath()).mkString) == "ac7ec3cef9e3bd8e05400e0eb9040a32")
     assert(md5sum(Source.fromFile(mf1.getFileList()(1).getAbsolutePath()).mkString) == "af53f02ccc505202fba4cdc612fe3707")
+    
+    val prevFiles = mf1.getFileList
+    assert(mf1.renameFiles(List(new File("Worker/src/test/files/merge/rename1"),
+                                new File("Worker/src/test/files/merge/rename2"))))
+    assert(!prevFiles(0).exists && !prevFiles(1).exists)
+    assert(mf1.getFileList()(0).exists && mf1.getFileList()(1).exists)
+
     mf1.getFileList()(0).delete()
     mf1.getFileList()(1).delete()
+  }
+
+  test("remove multiple files test") {
+    val fileList = List(new File("Worker/src/test/files/merge/remove1"),
+                        new File("Worker/src/test/files/merge/remove2"))
+    val mf1 = new MultiFileRead(fileList)
+
+    assert(fileList(0).createNewFile() && fileList(1).createNewFile())
+    mf1.removeFiles()
+    assert(!fileList(0).exists && !fileList(1).exists)
   }
 }

@@ -1,6 +1,7 @@
 import org.slf4j.LoggerFactory
 
 import java.io._
+import scala.util.Try
 
 class Record(val key: String, val value: String) {
   override def toString: String = {
@@ -84,7 +85,7 @@ class MultiFileWrite(private[this] val filePath: String) {
     fileOff += 100 // 100 = record size
     if (fileOff >= 32*1000*1000) { // TODO: move this literal to config
       assert(stream.length().toInt == 32*1000*1000)
-      
+
       fileOff -= stream.length().toInt
       fileIdx += 1
       fileList = fileList :+ new File(filePath + "/" + MultiFileWrite.getFreshFileName())
@@ -94,6 +95,20 @@ class MultiFileWrite(private[this] val filePath: String) {
   }
 
   def getFileList(): List[File] = fileList
+
+  def renameFiles(fl: List[File]): Boolean = {
+    assert(fileList.size == fl.size)
+
+    val fl_zip = fileList.zip(fl)
+    val res = fl_zip.foldLeft(true)((acc, p) => {
+      acc && Try(p._1.renameTo(p._2)).getOrElse(false)
+    })
+
+    if (res) {
+      fileList = fl
+    }
+    res
+  }
 }
 
 object MultiFileWrite {
