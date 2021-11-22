@@ -6,9 +6,21 @@ service connectService {
   rpc connect(ConnectRequest) returns (Empty) {}
 }
 
+service restPhaseService {
+  rpc sample(SamplingRequest) returns (SamplingResponse) {}
+}
+
 message ConnectRequest {
   string ip = 1;
 }
 
 message Empty {
+}
+
+message SamplingRequest {
+  map<int32, string> ipList = 1;
+}
+
+message SamplingResponse {
+  repeated string sampledData = 1;
 }

@@ -14,7 +14,7 @@ class WorkerConnection(masterConfig: MasterConfig, channelParam: ManagedChannel)
     if (channelParam == null) {
         val managedChannelBuilder = ManagedChannelBuilder.forAddress(masterConfig.ip, masterConfig.port)
         managedChannelBuilder.usePlaintext()
-        val channel = managedChannelBuilder.build()
+        channel = managedChannelBuilder.build()
     }
 
     val blockingStub = connectServiceGrpc.blockingStub(channel)

@@ -1,9 +1,12 @@
-import config.MasterConfig
+import config.{ClientInfo, MasterConfig}
+import io.grpc.ManagedChannelBuilder
 import org.scalatest.funsuite.AnyFunSuite
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 
+import java.io.File
 import java.util.concurrent.{ExecutorService, Executors}
+import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
@@ -30,7 +33,7 @@ class MainSuite extends AnyFunSuite {
             i <- 0 until numberOfConnection
         ) yield {
             clientConnection :+ Future {
-                val testClient = new WorkerConnection(new MasterConfig("127.0.0.1", 9000))
+                val testClient = new WorkerConnection(new MasterConfig("127.0.0.1", 9000), null)
 
                 testClient.connect()
             }
@@ -40,5 +43,27 @@ class MainSuite extends AnyFunSuite {
         clientConnection foreach(x =>
             Await.result(x, Duration.Inf)
         )
+    }
+
+    test("Sampling phase test") {
+        val openServer = Future {
+            val testFile = new File("Worker//data//partition1")
+            val openSamplingServer = new WorkerServer(Array(testFile), executorContext)
+
+            Thread.sleep(500)
+        }
+
+        val managedChannelBuilder = ManagedChannelBuilder.forAddress("localhost", 8000)
+        managedChannelBuilder.usePlaintext()
+        val channel = managedChannelBuilder.build()
+
+        val clientInfoMap = mutable.Map[Int, ClientInfo]()
+
+        val masterClient = new MasterSampling(clientInfoMap, Array(channel))
+
+        assertResult(3000) (masterClient.sampledData.size)
+
+        assert("AsfAGHM5om".equals(masterClient.sampledData(0)))
+        assert("Ga]QGzP2q)".equals(masterClient.sampledData(2999)))
     }
 }

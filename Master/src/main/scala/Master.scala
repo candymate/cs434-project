@@ -25,10 +25,13 @@ object Master {
 
         log.info("Connection phase start")
         // connection phase (server required in master)
-        new MasterConnection(slaveNum, ExecutionContext.global)
+        val connectionClass = new MasterConnection(slaveNum, ExecutionContext.global)
         log.info("Connection phase successfully finished")
 
         // sampling phase (server not required in master)
+        log.info("Sampling phase start")
+        val samplingClass = new MasterSampling(connectionClass.clientInfoMap, null)
+        log.info("Sampling phase stop")
 
         // sort/partitioning phase (sever not required in master)
 
