@@ -31,7 +31,11 @@ object Master {
         // sampling phase (server not required in master)
         log.info("Sampling phase start")
         val samplingClass = new MasterSampling(connectionClass.clientInfoMap, null)
-        log.info("Sampling phase stop")
+        log.info("Sampling phase connection phase finished")
+        // sort records
+        log.info("Sorting sampled records start")
+        val sortSampledRecords = new MasterSortSampledRecords(samplingClass.sampledData, slaveNum)
+        log.info("Sorting sampled records finished")
 
         // sort/partitioning phase (sever not required in master)
 
