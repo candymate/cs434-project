@@ -43,6 +43,8 @@ object Master {
         log.info("Sorting phase start")
         val sortingClass = new MasterSampleSortRequest(connectionClass.clientInfoMap, null,
             sortSampledRecords.pivotIndex)
+        sortingClass.sendSortRequestToEveryClient()
+        log.info("Sorting phase stop")
 
         // merging phase (server not required in master)
 

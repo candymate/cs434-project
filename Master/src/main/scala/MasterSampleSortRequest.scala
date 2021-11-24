@@ -65,7 +65,7 @@ class MasterSampleSortRequest(val clientInfoMap: mutable.Map[Int, ClientInfo],
 
     def sendSortRequestToEveryClient(): Unit = {
         logger.info("Sending sample request to every client")
-        val request = new SortingRequest(clientInfoMap.map { case(k, v) => k -> pivotInfo(k) }.toMap)
+        val request = new SortingRequest(clientInfoMap.map { case(k, v) => k -> pivotInfo(k - 1) }.toMap)
         blockingStubClientList.foreach( x => sortRequest(request, x))
         logger.info("Successfully sent sample request to every client")
     }
