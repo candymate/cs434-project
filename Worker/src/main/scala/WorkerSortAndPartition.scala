@@ -11,7 +11,7 @@ object WorkerSortAndPartition {
                                           outputPathFile: File,
                                           pivotMap: List[String]) = {
         inputPathFileList foreach {
-            sortAndPartitionFromInputFile(_, outputPathFile, pivotMap)
+            x => sortAndPartitionFromInputFile(x, outputPathFile, pivotMap)
         }
     }
 
