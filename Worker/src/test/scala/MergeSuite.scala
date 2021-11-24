@@ -8,7 +8,21 @@ import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class MergeSuite extends AnyFunSuite {
+  // https://alvinalexander.com/scala/how-to-list-files-in-directory-filter-names-scala/
+  def getListOfFiles(dir: String): List[File] = {
+    val d = new File(dir)
+    if (d.exists && d.isDirectory) {
+      d.listFiles.filter(_.isFile).toList.sorted
+    } else {
+      List[File]()
+    }
+  }
 
+  ignore("merge test") {
+    val fileList = getListOfFiles("/tmp/test")
+    val mfl = fileList.map(f => new MultiFileRead(List(f)))
+    MergeUtil.mergeFiles(new File("/tmp/test"), mfl)
+  }
 }
 
 @RunWith(classOf[JUnitRunner])
@@ -24,17 +38,19 @@ class MultiFileSuite extends AnyFunSuite {
 
   test("single file read test") {
     val mf1 = new MultiFileRead(List(sampleReadFile1))
-    assert(mf1.readOneRecord.key == "AsfAGHM5om")
-    assert(mf1.readOneRecord.key == "~sHd0jDv6X")
+    assert(mf1.readOneRecord.get.key == "AsfAGHM5om")
+    assert(mf1.readOneRecord.get.key == "~sHd0jDv6X")
     assert(mf1.seekRead(0, 500) == (0,500))
-    assert(mf1.readOneRecord.key == "*}-Wz1;TD-")
+    assert(mf1.readOneRecord.get.key == "*}-Wz1;TD-")
+    assert(mf1.seekRead(0, 995) == (0,995))
+    assert(mf1.readOneRecord == None)
   }
 
   test("multiple file read test") {
     val mf1 = new MultiFileRead(List(sampleReadFile1, sampleReadFile2))
     assert(mf1.seekRead(0, 900) == (0,900))
-    assert(mf1.readOneRecord.key == "5HA\\z%qt{%")
-    assert(mf1.readOneRecord.key == "`PkXQ<&+cc")
+    assert(mf1.readOneRecord.get.key == "5HA\\z%qt{%")
+    assert(mf1.readOneRecord.get.key == "`PkXQ<&+cc")
   }
 
   test("multiple file length test") {

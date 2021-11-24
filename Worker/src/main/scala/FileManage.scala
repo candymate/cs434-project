@@ -9,7 +9,7 @@ class Record(val key: String, val value: String) {
   }
 }
 
-class MultiFileRead(private[this] val fileList: List[File]) {
+class MultiFileRead(private[this] var fileList: List[File]) {
   val logger = LoggerFactory.getLogger(getClass)
 
   private[this] var fileIdx, fileOff = 0
@@ -28,26 +28,39 @@ class MultiFileRead(private[this] val fileList: List[File]) {
     (fileIdx, fileOff)
   }
 
-  def readOneRecord(): Record = {
+  def readOneRecord(): Option[Record] = {
     assert(fileList != Nil)
+    
+    if (fileIdx >= fileList.size) {
+      return None
+    }
 
     val stream = new RandomAccessFile(fileList(fileIdx), "r")
     stream.seek(fileOff)
 
+    // TODO: IOException Handling
+
     val line = stream.readLine()
-    fileOff += line.size + 2 // gensort uses \r\n
-    if (fileOff >= stream.length()) {
-      fileOff -= stream.length().toInt
-      fileIdx += 1
+    if (line.size == 100 - 2) {
+      fileOff += line.size + 2 // gensort uses \r\n
+      if (fileOff >= stream.length()) {
+        fileOff -= stream.length().toInt
+        fileIdx += 1
+      }
+      val rec = new Record(line.slice(0,10), line.slice(10,line.size)+"\r\n")
+      stream.close()
+      Some(rec)
     }
-    
-    val rec = new Record(line.slice(0,10), line.slice(10,line.size))
-    stream.close()
-    rec
+    else {
+      stream.close()
+      None
+    }
   }
 
   def removeFiles(): Unit = {
     assert(fileList != Nil)
+    println("removing files")
+    println(fileList)
 
     val deletedFiles = for {
       file <- fileList
@@ -55,6 +68,8 @@ class MultiFileRead(private[this] val fileList: List[File]) {
     } yield file
 
     assert(fileList.size == deletedFiles.size)
+
+    fileList = List.empty
   }
 }
 
@@ -73,10 +88,10 @@ class MultiFileWrite(private[this] val filePath: String) {
   }
 
   def writeOneRecord(rec: Record): Unit = {
-    if (fileList.isEmpty) {
-      assert(fileIdx == 0 && fileOff == 0)
+    assert(rec.key.size + rec.value.size == 100)
 
-      fileList = List(new File(filePath + "/" + MultiFileWrite.getFreshFileName()))
+    if (fileIdx >= fileList.size) {
+      fileList = fileList :+ new File(filePath + "/" + MultiFileWrite.getFreshFileName())
     }
 
     val stream = new RandomAccessFile(fileList(fileIdx), "rw")
@@ -88,7 +103,7 @@ class MultiFileWrite(private[this] val filePath: String) {
 
       fileOff -= stream.length().toInt
       fileIdx += 1
-      fileList = fileList :+ new File(filePath + "/" + MultiFileWrite.getFreshFileName())
+      // file added later
     }
 
     stream.close()
