@@ -12,13 +12,13 @@ class MasterSortSampledRecordsSuite extends AnyFunSuite {
         val sampledSortedRecords = new MasterSortSampledRecords(stringList, requiredConnections)
 
         val sortedStringList = sampledSortedRecords.sortedSampledRecords
-        val pivotIndex = sampledSortedRecords.pivotIndex
+        val pivotIndex = sampledSortedRecords.pivotList
 
         assert(sortedStringList(0).equals("a"))
         assert(sortedStringList(12).equals("m"))
 
-        assert(pivotIndex(0) == 0)
-        assert(pivotIndex(1) == 4)
-        assert(pivotIndex(2) == 8)
+        assert(pivotIndex(0) == "a")
+        assert(pivotIndex(1) == "e")
+        assert(pivotIndex(2) == "i")
     }
 }
