@@ -59,7 +59,8 @@ class MainSuite extends AnyFunSuite {
 
         val clientInfoMap = mutable.Map[Int, ClientInfo]()
 
-        val masterClient = new MasterSampling(clientInfoMap, Array(channel))
+        val masterClient = new MasterSampleSortRequest(clientInfoMap, Array(channel), null)
+        masterClient.sendSampleRequestToEveryClient()
 
         assertResult(3000) (masterClient.sampledData.size)
 

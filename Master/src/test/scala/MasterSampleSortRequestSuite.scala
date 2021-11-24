@@ -14,7 +14,7 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 @RunWith(classOf[JUnitRunner])
-class MasterSamplingSuite extends AnyFunSuite {
+class MasterSampleSortRequestSuite extends AnyFunSuite {
     implicit val threadPool: ExecutorService = Executors.newFixedThreadPool(8)
     implicit val executorContext: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
@@ -43,7 +43,8 @@ class MasterSamplingSuite extends AnyFunSuite {
 
         clientInfoMap.put(1, new ClientInfo("localhost", 8000))
 
-        new MasterSampling(clientInfoMap, channelArray)
+        val masterServer = new MasterSampleSortRequest(clientInfoMap, channelArray, null)
+        masterServer.sendSampleRequestToEveryClient()
 
         verify(mockService, times(1))
             .sample(ArgumentMatchers.eq(SamplingRequest(
