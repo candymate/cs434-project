@@ -38,6 +38,8 @@ object Master {
         log.info("Sorting sampled records finished")
 
         // sort/partitioning phase (sever not required in master)
+        log.info("Sorting phase start")
+        val sortingClass = new MasterSortingRequest()
 
         // merging phase (server not required in master)
 

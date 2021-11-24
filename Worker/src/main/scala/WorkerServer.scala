@@ -2,7 +2,7 @@ import config.{ClientInfo, WorkerServerConfig}
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
 import protobuf.connect
-import protobuf.connect.{SamplingRequest, SamplingResponse, restPhaseServiceGrpc}
+import protobuf.connect.{SamplingRequest, SamplingResponse, ShufflingRequest, ShufflingResponse, SortingRequest, SortingResponse, restPhaseServiceGrpc}
 
 import java.io.File
 import java.util.concurrent.locks.ReentrantLock
@@ -65,6 +65,10 @@ class WorkerServer (val inputPathFileList: Array[File], executionContext: Execut
                 connect.SamplingResponse(sampledData = WorkerSampling.sampleFromFile(inputPathFileList(0)))
             }
         }
+
+        override def sort(request: SortingRequest): Future[SortingResponse] = ???
+
+        override def shuffleStart(request: ShufflingRequest): Future[ShufflingResponse] = ???
     }
 
     start()

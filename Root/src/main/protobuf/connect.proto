@@ -8,6 +8,8 @@ service connectService {
 
 service restPhaseService {
   rpc sample(SamplingRequest) returns (SamplingResponse) {}
+  rpc sort(SortingRequest) returns (SortingResponse) {}
+  rpc shuffleStart(ShufflingRequest) returns (ShufflingResponse) {}
 }
 
 message ConnectRequest {
@@ -23,4 +25,20 @@ message SamplingRequest {
 
 message SamplingResponse {
   repeated string sampledData = 1;
+}
+
+message SortingRequest {
+  map<int32, int32> pivot = 1;
+}
+
+message SortingResponse {
+  bool success = 1;
+}
+
+message ShufflingRequest {
+
+}
+
+message ShufflingResponse {
+
 }
