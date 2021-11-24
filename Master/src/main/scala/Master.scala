@@ -42,7 +42,7 @@ object Master {
         // sort/partitioning phase (sever not required in master)
         log.info("Sorting phase start")
         val sortingClass = new MasterSampleSortRequest(connectionClass.clientInfoMap, null,
-            sortSampledRecords.pivotIndex)
+            sortSampledRecords.pivotList)
         sortingClass.sendSortRequestToEveryClient()
         log.info("Sorting phase stop")
 

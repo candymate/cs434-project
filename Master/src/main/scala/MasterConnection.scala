@@ -51,7 +51,7 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
 
             lock.lock()
             try {
-                clientInfoMap.put(clientInfoMap.size + 1, new ClientInfo(request.ip, 8000))
+                clientInfoMap.put(clientInfoMap.size, new ClientInfo(request.ip, 8000))
                 if (numberOfRequiredConnections == clientInfoMap.size) {
                     log.info(s"Master successfully connected to ${numberOfRequiredConnections} client(s)")
 

@@ -11,7 +11,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-class WorkerServer (val inputPathFileList: Array[File], executionContext: ExecutionContext) { self =>
+class WorkerServer (val inputPathFileList: Array[File],
+                    val outputPathFile: File,
+                    executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     var server: Server = null
@@ -66,7 +68,13 @@ class WorkerServer (val inputPathFileList: Array[File], executionContext: Execut
             }
         }
 
-        override def sort(request: SortingRequest): Future[SortingResponse] = ???
+        override def sort(request: SortingRequest): Future[SortingResponse] = {
+            WorkerSortAndPartition.sortAndPartitionFromInputFileList(inputPathFileList, outputPathFile,
+                request.pivot.toList)
+            Future.successful(
+                SortingResponse()
+            )
+        }
 
         override def shuffleStart(request: ShufflingRequest): Future[ShufflingResponse] = ???
     }

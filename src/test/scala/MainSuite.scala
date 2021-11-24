@@ -48,7 +48,7 @@ class MainSuite extends AnyFunSuite {
     test("Sampling phase test") {
         val openServer = Future {
             val testFile = new File("Worker//data//partition1")
-            val openSamplingServer = new WorkerServer(Array(testFile), executorContext)
+            val openSamplingServer = new WorkerServer(Array(testFile), null, executorContext)
 
             Thread.sleep(500)
         }

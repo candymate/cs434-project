@@ -4,4 +4,6 @@ class MasterSortSampledRecords(sampledRecords: List[String], numberOfConnections
         for {
             i <- List.range(0, numberOfConnections)
         } yield {i * (sampledRecords.size / numberOfConnections)}
+
+    val pivotList: List[String] = pivotIndex.map(sortedSampledRecords(_))
 }

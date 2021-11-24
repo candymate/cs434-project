@@ -80,12 +80,12 @@ class MasterSampleSortRequestSuite extends AnyFunSuite {
 
         clientInfoMap.put(1, new ClientInfo("localhost", 8000))
 
-        val masterServer = new MasterSampleSortRequest(clientInfoMap, channelArray, List(3))
+        val masterServer = new MasterSampleSortRequest(clientInfoMap, channelArray, List("ABCEDFAS"))
         masterServer.sendSortRequestToEveryClient()
 
         verify(mockService, times(1))
             .sort(ArgumentMatchers.eq(SortingRequest(
-                clientInfoMap.map{case(k, v) => k -> 3}.toMap
+                List("ABCEDFAS")
             )))
 
         server.shutdown()

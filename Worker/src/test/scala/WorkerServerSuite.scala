@@ -19,7 +19,7 @@ class WorkerServerSuite extends AnyFunSuite {
         val testFile = new File("Worker//data//partition1")
 
         val workerServer = Future {
-            val server = new WorkerServer(Array(testFile), executorContext)
+            val server = new WorkerServer(Array(testFile), null, executorContext)
             Thread.sleep(500)
             server.stop()
         }

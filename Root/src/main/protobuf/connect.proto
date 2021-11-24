@@ -28,7 +28,7 @@ message SamplingResponse {
 }
 
 message SortingRequest {
-  map<int32, int32> pivot = 1;
+  repeated string pivot = 1;
 }
 
 message SortingResponse {

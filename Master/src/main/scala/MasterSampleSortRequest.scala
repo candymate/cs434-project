@@ -10,7 +10,7 @@ import scala.collection.mutable
 
 class MasterSampleSortRequest(val clientInfoMap: mutable.Map[Int, ClientInfo],
                               channelListParam: Array[ManagedChannel],
-                              pivotInfo: List[Int]) {
+                              pivotInfo: List[String]) {
     val logger = LoggerFactory.getLogger(getClass)
     var channelClientList: Array[ManagedChannel] = channelListParam
     var blockingStubClientList: Array[restPhaseServiceBlockingStub] = Array()
@@ -65,7 +65,7 @@ class MasterSampleSortRequest(val clientInfoMap: mutable.Map[Int, ClientInfo],
 
     def sendSortRequestToEveryClient(): Unit = {
         logger.info("Sending sample request to every client")
-        val request = new SortingRequest(clientInfoMap.map { case(k, v) => k -> pivotInfo(k - 1) }.toMap)
+        val request = new SortingRequest(pivotInfo)
         blockingStubClientList.foreach( x => sortRequest(request, x))
         logger.info("Successfully sent sample request to every client")
     }
