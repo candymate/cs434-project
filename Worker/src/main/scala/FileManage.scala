@@ -10,7 +10,7 @@ class Record(val key: String, val value: String) {
 }
 
 class MultiFileRead(private[this] var fileList: List[File]) {
-  val logger = LoggerFactory.getLogger(getClass)
+  val log = LoggerFactory.getLogger(getClass)
 
   private[this] var fileIdx, fileOff = 0
 
@@ -59,8 +59,8 @@ class MultiFileRead(private[this] var fileList: List[File]) {
 
   def removeFiles(): Unit = {
     assert(fileList != Nil)
-    println("removing files")
-    println(fileList)
+
+    log.info("removing files: " + fileList.toString)
 
     val deletedFiles = for {
       file <- fileList
@@ -74,7 +74,7 @@ class MultiFileRead(private[this] var fileList: List[File]) {
 }
 
 class MultiFileWrite(private[this] val filePath: String) {
-  val logger = LoggerFactory.getLogger(getClass)
+  val log = LoggerFactory.getLogger(getClass)
 
   private[this] var fileIdx, fileOff = 0
   private[this] var fileList: List[File] = List.empty

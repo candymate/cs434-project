@@ -3,6 +3,8 @@ import org.slf4j.LoggerFactory
 import java.io._
 
 object MergeUtil {
+  val log = LoggerFactory.getLogger(getClass)
+
   def mergeFiles(workDir: File, mfl: List[MultiFileRead]): MultiFileRead = {
     assert(workDir.isDirectory)
 
@@ -38,8 +40,7 @@ object MergeUtil {
       mf1.removeFiles()
       mf2.removeFiles()
 
-      println("merging done with files:")
-      println(mfw.getFileList)
+      log.info("merging done with files:" + mfw.getFileList.toString)
 
       new MultiFileRead(mfw.getFileList)
     }
