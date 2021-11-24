@@ -37,21 +37,11 @@ class WorkerSortAndPartitionSuite extends AnyFunSuite {
                 Array(testDirectory, testDirectory2, testDirectory3), testOutputDirectory, pivotList)
 
         val file1Size1 = fromFile("Worker//output//unshuffled.0.0").getLines().size
-        val file2Size1 = fromFile("Worker//output//unshuffled.1.0").getLines().size
+        val file2Size1 = fromFile("Worker//output//unshuffled.0.1").getLines().size
+        val file3Size1 = fromFile("Worker//output//unshuffled.0.2").getLines().size
 
-        assert(68 == file1Size1)
-        assert(132 == file2Size1)
-
-        val file1Size2 = fromFile("Worker//output//unshuffled.0.1").getLines().size
-        val file2Size2 = fromFile("Worker//output//unshuffled.1.1").getLines().size
-
-        assert(68 == file1Size2)
-        assert(132 == file2Size2)
-
-        val file1Size3 = fromFile("Worker//output//unshuffled.0.2").getLines().size
-        val file2Size3 = fromFile("Worker//output//unshuffled.1.2").getLines().size
-
-        assert(68 == file1Size3)
-        assert(132 == file2Size3)
+        assert(200 == file1Size1)
+        assert(200 == file2Size1)
+        assert(200 == file3Size1)
     }
 }
