@@ -30,11 +30,15 @@ object WorkerSortAndPartition {
                            outputPathFile: String, targetMachine: Int): Any = {
         pivotMap match {
             case head::tail => {
-                val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < head)
-                writeToFile(outputPathFile, firstList, targetMachine)
-                makeSortedPartition(restList, tail, outputPathFile, targetMachine + 1)
+                if (tail.size != 0) {
+                    val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < head)
+                    writeToFile(outputPathFile, firstList, targetMachine)
+                    makeSortedPartition(restList, tail, outputPathFile, targetMachine + 1)
+                } else {
+                    writeToFile(outputPathFile, sortedDataFromFile, targetMachine)
+                }
             }
-            case _ => writeToFile(outputPathFile, sortedDataFromFile, targetMachine)
+            case _ => {}
         }
     }
 
