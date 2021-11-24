@@ -18,7 +18,7 @@ class MergeSuite extends AnyFunSuite {
     }
   }
 
-  test("merge test") {
+  ignore("merge test") {
     val fileList = getListOfFiles("/tmp/test")
     val mfl = fileList.map(f => new MultiFileRead(List(f)))
     MergeUtil.mergeFiles(new File("/tmp/test"), mfl)

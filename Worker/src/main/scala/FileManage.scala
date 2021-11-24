@@ -14,6 +14,8 @@ class MultiFileRead(private[this] var fileList: List[File]) {
 
   private[this] var fileIdx, fileOff = 0
 
+  private[this] var fstream: RandomAccessFile = null
+
   def length(): Int = {
     assert(fileList != Nil)
     fileList.foldLeft(0)((acc, f) => acc + f.length.toInt)
@@ -25,6 +27,11 @@ class MultiFileRead(private[this] var fileList: List[File]) {
 
     fileIdx = idx
     fileOff = off
+
+    if (fstream != null) { fstream.close() }
+    fstream = new RandomAccessFile(fileList(fileIdx), "r")
+    fstream.seek(fileOff)
+
     (fileIdx, fileOff)
   }
 
@@ -35,24 +42,23 @@ class MultiFileRead(private[this] var fileList: List[File]) {
       return None
     }
 
-    val stream = new RandomAccessFile(fileList(fileIdx), "r")
-    stream.seek(fileOff)
+    if (fstream == null) { fstream = new RandomAccessFile(fileList(fileIdx), "r") }
 
-    // TODO: IOException Handling
-
-    val line = stream.readLine()
+    val line = fstream.readLine()
     if (line.size == 100 - 2) {
       fileOff += line.size + 2 // gensort uses \r\n
-      if (fileOff >= stream.length()) {
-        fileOff -= stream.length().toInt
+      if (fileOff >= fstream.length()) {
+        fileOff -= fstream.length().toInt
         fileIdx += 1
+        fstream.close()
+        fstream = null
       }
       val rec = new Record(line.slice(0,10), line.slice(10,line.size)+"\r\n")
-      stream.close()
       Some(rec)
     }
     else {
-      stream.close()
+      fstream.close()
+      fstream = null
       None
     }
   }
@@ -79,34 +85,43 @@ class MultiFileWrite(private[this] val filePath: String) {
   private[this] var fileIdx, fileOff = 0
   private[this] var fileList: List[File] = List.empty
 
+  private[this] var fstream: RandomAccessFile = null
+
   def seekWrite(idx: Int, off: Int): (Int, Int) = {
     assert(idx < fileList.size && off < fileList(idx).length.toInt)
 
     fileIdx = idx
     fileOff = off
+
+    if (fstream != null) {
+      fstream.close()
+      fstream = new RandomAccessFile(fileList(fileIdx), "rw")
+      fstream.seek(fileOff)
+    }
+
     (fileIdx, fileOff)
   }
 
   def writeOneRecord(rec: Record): Unit = {
     assert(rec.key.size + rec.value.size == 100)
 
-    if (fileIdx >= fileList.size) {
+    if (fileIdx >= fileList.size) { // including fileList == List.empty
       fileList = fileList :+ new File(filePath + "/" + MultiFileWrite.getFreshFileName())
+      fstream = new RandomAccessFile(fileList(fileIdx), "rw")
     }
 
-    val stream = new RandomAccessFile(fileList(fileIdx), "rw")
-    stream.seek(fileOff)
-    stream.writeBytes(rec.key + rec.value)
+    fstream.writeBytes(rec.key + rec.value)
     fileOff += 100 // 100 = record size
     if (fileOff >= 32*1000*1000) { // TODO: move this literal to config
-      assert(stream.length().toInt == 32*1000*1000)
+      assert(fstream.length().toInt == 32*1000*1000)
 
-      fileOff -= stream.length().toInt
+      fileOff -= fstream.length().toInt
       fileIdx += 1
+
+      fstream.close()
+      fstream = null
       // file added later
     }
-
-    stream.close()
   }
 
   def getFileList(): List[File] = fileList
