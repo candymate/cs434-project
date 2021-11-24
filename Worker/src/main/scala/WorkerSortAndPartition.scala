@@ -31,22 +31,24 @@ object WorkerSortAndPartition {
         pivotMap match {
             case head::tail => {
                 val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < head)
-                val newPath = outputPathFile + "/" + generateName(targetMachine)
-                val bufferedWriter = new BufferedWriter(new FileWriter(new File(newPath)))
-                sortedDataFromFile.foreach(
-                    bufferedWriter.write(_)
-                )
-                bufferedWriter.close()
+                writeToFile(outputPathFile, firstList, targetMachine)
                 makeSortedPartition(restList, tail, outputPathFile, targetMachine + 1)
             }
-            case (e: Exception) => {
-                sys.exit(1)
-            }
+            case _ => writeToFile(outputPathFile, sortedDataFromFile, targetMachine)
         }
     }
 
+    def writeToFile(outputPathFile: String, data: List[String], targetMachine: Int) = {
+        val newPath = outputPathFile + "/" + generateName(targetMachine)
+        val bufferedWriter = new BufferedWriter(new FileWriter(new File(newPath)))
+        data.foreach(
+            x => bufferedWriter.write(x + "\r\n")
+        )
+        bufferedWriter.close()
+    }
+
     private def generateName(targetWorker: Int): String = {
-        val fileName = "unshuffled." + fileNamePartition + "." + targetWorker
+        val fileName = "unshuffled." + targetWorker + "." +  fileNamePartition
         fileName
     }
 }
