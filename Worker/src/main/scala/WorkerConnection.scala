@@ -1,3 +1,5 @@
+import WorkerState.CONNECTION_START
+import channel.WorkerToMasterChannel
 import config.MasterConfig
 import io.grpc.{ManagedChannel, ManagedChannelBuilder, StatusRuntimeException}
 import org.slf4j.LoggerFactory
@@ -6,26 +8,21 @@ import protobuf.connect.{ConnectRequest, connectServiceGrpc}
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
-class WorkerConnection(masterConfig: MasterConfig, channelParam: ManagedChannel) {
+class WorkerConnection(channelParam: ManagedChannel) {
     val logger = LoggerFactory.getLogger(getClass)
     var channel = channelParam
-    // will change
 
-    if (channelParam == null) {
-        val managedChannelBuilder = ManagedChannelBuilder.forAddress(masterConfig.ip, masterConfig.port)
-        managedChannelBuilder.usePlaintext()
-        channel = managedChannelBuilder.build()
+    if (channel == null) {
+        WorkerToMasterChannel.openWorkerToMasterChannel()
+        channel = WorkerToMasterChannel.channel
     }
 
     val blockingStub = connectServiceGrpc.blockingStub(channel)
 
-    def shutdown(): Unit = {
-        logger.info("worker shutdown")
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
-    }
+    def initiateConnection(): Unit = {
+        assert(Worker.WORKER_STATE == CONNECTION_START)
 
-    def connect(): Unit = {
-        logger.info(s"trying to connect to master ${masterConfig.ip}:${masterConfig.port} ")
+        logger.info(s"trying to connect to master ${WorkerToMasterChannel.ip}:${WorkerToMasterChannel.port} ")
         val request = new ConnectRequest(InetAddress.getLocalHost().getHostAddress())
 
         try {
@@ -36,8 +33,9 @@ class WorkerConnection(masterConfig: MasterConfig, channelParam: ManagedChannel)
                 logger.error("connection rpc failed")
                 sys.exit(1)
             }
+        } finally {
+            WorkerToMasterChannel.closeWorkerToMasterChannel()
         }
     }
 
-    connect()
 }

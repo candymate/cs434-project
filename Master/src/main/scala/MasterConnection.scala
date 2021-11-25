@@ -17,6 +17,8 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
     var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
 
     def start(): Unit = {
+        assert(Master.MASTER_STATE == CONNECTION_START)
+
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
         serverBuilder.addService(connectServiceGrpc.bindService(new connectService, executionContext))
         server = serverBuilder.build().start()

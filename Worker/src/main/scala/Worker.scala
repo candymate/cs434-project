@@ -1,34 +1,26 @@
-import config.MasterConfig
+import WorkerState._
+import channel.WorkerToMasterChannel
 import org.slf4j.LoggerFactory
 
-import java.io.File
 import scala.concurrent.ExecutionContext
 
 object Worker {
+    @volatile var WORKER_STATE: WorkerState = CONNECTION_START
+
     def main(args: Array[String]): Unit = {
         val log = LoggerFactory.getLogger(getClass)
 
-        // argument handling
-        val masterIpPortInfo: MasterConfig = new MasterConfig(args(0).split(":")(0),
-            args(0).split(":")(1).toInt)
-        var inputFilePathList: Array[File] = Array()
-        args.slice(2, args.length - 2).foreach{ case filePath: String => {
-            val directory = new File(filePath)
-            if (directory.isDirectory && directory.exists()) {
-                inputFilePathList = inputFilePathList ++ directory.listFiles(_.isFile)
-            }
-        }}
+        log.info("Handling argument")
+        WorkerArgumentHandler.handleArgument(args)
 
-        val outputFilePath: File = new File(args.last)
-
-        // connection phase (server not required in worker)
         log.info("Connection phase start")
-        new WorkerConnection(masterIpPortInfo, null)
+        val workerConnection = new WorkerConnection(null)
+        workerConnection.initiateConnection()
+        WORKER_STATE = CONNECTION_FINISH
         log.info("Connection phase successfully finished")
 
-        // worker server start
         log.info("Worker Server start for communication")
-        val workerServer = new WorkerServer(inputFilePathList, outputFilePath, ExecutionContext.global)
+        val workerServer = new WorkerServer(WorkerArgumentHandler.inputFileArray, WorkerArgumentHandler.outputFile, ExecutionContext.global)
         log.info("Worker Server start completed for communication")
 
         // sampling phase (server required in worker)
