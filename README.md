@@ -19,6 +19,18 @@ junit : 4.13
 [Initial-plan](https://github.com/candymate/cs434-project/wiki/Initial-Plan)
 [Revised-plan](https://github.com/candymate/cs434-project/wiki/Revised-Plan)
 
-## Meeting
-[11/05](https://github.com/candymate/cs434-project/wiki/%ED%9A%8C%EC%9D%98%EB%A1%9D#1105-2000--2200)
+## Progress
+### Design
+- finished designing 
 
+### Implementation
+- connection phase finished
+- sampling phase finished
+- sorting phase finished
+- merging phase finished
+
+- currently implementing 
+  (i) shuffling
+  (ii) checking
+  (iii) exploiting multi-core in sorting phase
+    
