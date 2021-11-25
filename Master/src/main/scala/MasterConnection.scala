@@ -1,3 +1,4 @@
+import MasterState._
 import config.{ClientInfo, MasterServerConfig}
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
@@ -15,7 +16,7 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
     // key: machine order, value: ClientInfo
     var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
 
-    private def start(): Unit = {
+    def start(): Unit = {
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
         serverBuilder.addService(connectServiceGrpc.bindService(new connectService, executionContext))
         server = serverBuilder.build().start()
@@ -27,21 +28,17 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
         }
     }
 
-    private def stop(): Unit = {
+    def stop(): Unit = {
         if (server != null) {
             server.shutdown()
         }
     }
 
-    private def blockUntilShutdown(): Unit = {
+    def blockUntilShutdown(): Unit = {
         if (server != null) {
             server.awaitTermination()
         }
     }
-
-    // implement service for counting connections
-    // also need to keep ip address and port number for later
-    // if numberOfRequiredConnections == currentConnections, then stop the server
 
     private class connectService extends connectServiceGrpc.connectService {
         private val lock = new ReentrantLock()
@@ -56,10 +53,11 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
                     log.info(s"Master successfully connected to ${numberOfRequiredConnections} client(s)")
 
                     println(s"${InetAddress.getLocalHost().getHostAddress()}:9000")
-
                     clientInfoMap foreach {case(_, v: ClientInfo) => print(s"${v.ip} ")}
+                    println()
 
-                    server.shutdown()
+                    Master.MASTER_STATE = CONNECTION_FINISH
+                    notify()
                 }
             } finally {
                 lock.unlock()
@@ -68,8 +66,4 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
             Future.successful(Empty())
         }
     }
-
-    log.info(s"started master server expecting ${numberOfRequiredConnections} slave(s)")
-    start()
-    blockUntilShutdown()
 }
