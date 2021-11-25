@@ -31,7 +31,7 @@ object WorkerSortAndPartition {
         pivotMap match {
             case head::tail => {
                 if (tail.size != 0) {
-                    val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < head)
+                    val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < tail.head)
                     writeToFile(outputPathFile, firstList, targetMachine)
                     makeSortedPartition(restList, tail, outputPathFile, targetMachine + 1)
                 } else {
