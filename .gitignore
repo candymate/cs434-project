@@ -37,3 +37,4 @@ project/plugins/project/
 .bloop/
 project/**/metals.sbt
 
+Worker/output/unshuffled*

@@ -29,8 +29,8 @@ lazy val IntegrationTesting = (project in file("."))
             scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
         )
     )
-    .aggregate(Master)
-    .aggregate(Worker)
+    // .aggregate(Master)
+    // .aggregate(Worker)
     .dependsOn(Master)
     .dependsOn(Worker)
 

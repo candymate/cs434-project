@@ -28,7 +28,7 @@ object Worker {
 
         // worker server start
         log.info("Worker Server start for communication")
-        val workerServer = new WorkerServer(inputFilePathList, ExecutionContext.global)
+        val workerServer = new WorkerServer(inputFilePathList, outputFilePath, ExecutionContext.global)
         log.info("Worker Server start completed for communication")
 
         // sampling phase (server required in worker)

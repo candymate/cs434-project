@@ -2,7 +2,7 @@ import config.{ClientInfo, WorkerServerConfig}
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
 import protobuf.connect
-import protobuf.connect.{SamplingRequest, SamplingResponse, restPhaseServiceGrpc}
+import protobuf.connect.{SamplingRequest, SamplingResponse, ShufflingRequest, ShufflingResponse, SortingRequest, SortingResponse, restPhaseServiceGrpc}
 
 import java.io.File
 import java.util.concurrent.locks.ReentrantLock
@@ -11,7 +11,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-class WorkerServer (val inputPathFileList: Array[File], executionContext: ExecutionContext) { self =>
+class WorkerServer (val inputPathFileList: Array[File],
+                    val outputPathFile: File,
+                    executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     var server: Server = null
@@ -65,6 +67,16 @@ class WorkerServer (val inputPathFileList: Array[File], executionContext: Execut
                 connect.SamplingResponse(sampledData = WorkerSampling.sampleFromFile(inputPathFileList(0)))
             }
         }
+
+        override def sort(request: SortingRequest): Future[SortingResponse] = {
+            WorkerSortAndPartition.sortAndPartitionFromInputFileList(inputPathFileList, outputPathFile,
+                request.pivot.toList)
+            Future.successful(
+                SortingResponse()
+            )
+        }
+
+        override def shuffleStart(request: ShufflingRequest): Future[ShufflingResponse] = ???
     }
 
     start()
