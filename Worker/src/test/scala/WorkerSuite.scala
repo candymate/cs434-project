@@ -40,7 +40,8 @@ class WorkerSuite extends AnyFunSuite {
             .directExecutor()
             .build()
 
-        new WorkerConnection(new MasterConfig("localhost", 9000), channel)
+        val workerConnection = new WorkerConnection(channel)
+        workerConnection.initiateConnection()
 
         verify(mockService, times(1))
             .connect(ArgumentMatchers.eq(ConnectRequest(InetAddress.getLocalHost().getHostAddress())))

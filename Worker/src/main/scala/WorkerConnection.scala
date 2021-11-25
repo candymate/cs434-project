@@ -1,12 +1,10 @@
 import WorkerState.CONNECTION_START
 import channel.WorkerToMasterChannel
-import config.MasterConfig
-import io.grpc.{ManagedChannel, ManagedChannelBuilder, StatusRuntimeException}
+import io.grpc.{ManagedChannel, StatusRuntimeException}
 import org.slf4j.LoggerFactory
 import protobuf.connect.{ConnectRequest, connectServiceGrpc}
 
 import java.net.InetAddress
-import java.util.concurrent.TimeUnit
 
 class WorkerConnection(channelParam: ManagedChannel) {
     val logger = LoggerFactory.getLogger(getClass)
@@ -34,7 +32,9 @@ class WorkerConnection(channelParam: ManagedChannel) {
                 sys.exit(1)
             }
         } finally {
-            WorkerToMasterChannel.closeWorkerToMasterChannel()
+            if (channelParam == null) {
+                WorkerToMasterChannel.closeWorkerToMasterChannel()
+            }
         }
     }
 
