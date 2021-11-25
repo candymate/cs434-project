@@ -18,7 +18,6 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
 
     def start(): Unit = {
         assert(Master.MASTER_STATE == CONNECTION_START)
-
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
         serverBuilder.addService(connectServiceGrpc.bindService(new connectService, executionContext))
         server = serverBuilder.build().start()
@@ -45,7 +44,7 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
     private class connectService extends connectServiceGrpc.connectService {
         private val lock = new ReentrantLock()
 
-        override def connect(request: ConnectRequest): Future[Empty] = {
+        override def connect(request: ConnectRequest): Future[Empty] = this.synchronized {
             log.info("connection established with " + request.ip + ":" + 9000)
 
             lock.lock()

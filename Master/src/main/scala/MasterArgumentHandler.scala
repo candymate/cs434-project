@@ -10,7 +10,7 @@ object MasterArgumentHandler {
             sys.exit(1)
         }
 
-        require(args.length != 1)
+        require(args.length == 1)
 
         slaveNum = try {
             args(0).toInt

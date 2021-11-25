@@ -19,7 +19,7 @@ object Master {
         connectionClass.start()
 
         log.info("Stopping main function until connection phase is completed")
-        while (MASTER_STATE != CONNECTION_FINISH) wait()
+        while (MASTER_STATE != CONNECTION_FINISH) this.synchronized(wait())
         log.info("Connection phase successfully finished")
 
         log.info("Sampling phase start")

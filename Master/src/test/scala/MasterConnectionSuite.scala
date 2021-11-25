@@ -32,15 +32,18 @@ class MasterConnectionSuite extends AnyFunSuite {
     }
 
     test("server connects from client") {
-        val openServer = Future {
+       val openServer = Future {
             val testConnection = new MasterConnection(3, ExecutionContext.global)
+            testConnection.start()
+
+           Thread.sleep(2000)
 
             assert(testConnection.server != null)
             assertResult(3)(testConnection.clientInfoMap.size)
 
-            Thread.sleep(100)
+            Thread.sleep(5000)
 
-            assert(testConnection.server.isTerminated)
+            testConnection.stop()
         }
 
         val mockClient1 = new MasterConnectionMock()
