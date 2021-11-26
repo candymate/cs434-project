@@ -1,3 +1,4 @@
+import Master.MASTER_STATE
 import MasterState._
 import config.{ClientInfo, MasterServerConfig}
 import io.grpc.{Server, ServerBuilder}
@@ -44,7 +45,7 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
     private class connectService extends connectServiceGrpc.connectService {
         private val lock = new ReentrantLock()
 
-        override def connect(request: ConnectRequest): Future[Empty] = this.synchronized {
+        override def connect(request: ConnectRequest): Future[Empty] = synchronized {
             log.info("connection established with " + request.ip + ":" + 9000)
 
             lock.lock()
@@ -54,11 +55,10 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
                     log.info(s"Master successfully connected to ${numberOfRequiredConnections} client(s)")
 
                     println(s"${InetAddress.getLocalHost().getHostAddress()}:9000")
-                    clientInfoMap foreach {case(_, v: ClientInfo) => print(s"${v.ip} ")}
+                    clientInfoMap foreach { case (_, v: ClientInfo) => print(s"${v.ip} ") }
                     println()
 
-                    Master.MASTER_STATE = CONNECTION_FINISH
-                    notify()
+                    MASTER_STATE = CONNECTION_FINISH
                 }
             } finally {
                 lock.unlock()

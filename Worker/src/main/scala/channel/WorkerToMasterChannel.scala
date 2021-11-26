@@ -12,7 +12,7 @@ object WorkerToMasterChannel {
     var channel: ManagedChannel = null
 
     def configureMasterIpAndPort(ip: String, port: Int) = {
-        assert(channel == null && ip == null)
+        assert(channel == null && this.ip == null)
 
         this.ip = ip
         this.port = port
