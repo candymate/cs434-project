@@ -1,10 +1,15 @@
 import MasterState._
+import config.ClientInfo
+import scala.collection.mutable
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
 
 object Master {
     @volatile var MASTER_STATE: MasterState = CONNECTION_START
+    
+    // key: machine order, value: ClientInfo
+    var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
 
     def main(args: Array[String]): Unit = {
         val log = LoggerFactory.getLogger(getClass)

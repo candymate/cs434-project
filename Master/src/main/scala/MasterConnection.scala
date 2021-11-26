@@ -8,15 +8,12 @@ import protobuf.connect.{ConnectRequest, ConnectResponse, Empty, connectMasterSe
 
 import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
-import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 class MasterConnection(numberOfRequiredConnections: Int, executionContext: ExecutionContext) { self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     var server: Server = null
-    // key: machine order, value: ClientInfo
-    var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
 
     def start(): Unit = {
         assert(Master.MASTER_STATE == CONNECTION_START)
@@ -67,14 +64,14 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
 
             lock.lock()
             try {
-                clientInfoMap.put(clientInfoMap.size, new ClientInfo(request.ip, request.port))
-                if (numberOfRequiredConnections == clientInfoMap.size) {
+                Master.clientInfoMap.put(Master.clientInfoMap.size, new ClientInfo(request.ip, request.port))
+                if (numberOfRequiredConnections == Master.clientInfoMap.size) {
                     log.info(s"Master successfully connected to ${numberOfRequiredConnections} client(s)")
 
                     MasterToWorkerChannel.configureClientIpAndPort(request.ip, request.port)
 
                     println(s"${InetAddress.getLocalHost().getHostAddress()}:9000")
-                    clientInfoMap foreach { case (_, v: ClientInfo) => print(s"${v.ip} ") }
+                    Master.clientInfoMap foreach { case (_, v: ClientInfo) => print(s"${v.ip} ") }
                     println()
 
                     MASTER_STATE = CONNECTION_FINISH

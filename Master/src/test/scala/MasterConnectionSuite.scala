@@ -39,7 +39,7 @@ class MasterConnectionSuite extends AnyFunSuite {
            Thread.sleep(2000)
 
             assert(testConnection.server != null)
-            assertResult(3)(testConnection.clientInfoMap.size)
+            assertResult(3)(Master.clientInfoMap.size)
 
             Thread.sleep(5000)
 
