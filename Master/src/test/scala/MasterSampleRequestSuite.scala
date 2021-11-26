@@ -43,8 +43,8 @@ class MasterSampleRequestSuite extends AnyFunSuite {
 
         Master.MASTER_STATE = SAMPLING_START
 
-        val masterServer = new MasterSampleRequest(channelArray)
-        masterServer.sendSampleRequestToEveryClient()
+        val masterServer = new MasterSampleStartRequest(channelArray)
+        masterServer.broadcastSampleStart()
 
         verify(mockService, times(1))
             .masterToWorkerSampleRequest(ArgumentMatchers.eq(SamplingRequest()))

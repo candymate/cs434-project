@@ -15,7 +15,11 @@ class MasterServer(executionContext: ExecutionContext) { self =>
     def start(): Unit = {
         assert(Master.MASTER_STATE == CONNECTION_START)
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
+
+        // add services here
         serverBuilder.addService(connectMasterServiceGrpc.bindService(new MasterConnectionService, executionContext))
+        
+
         server = serverBuilder.build().start()
         log.info("Server started, listening on " + MasterServerConfig.port)
         sys.addShutdownHook {

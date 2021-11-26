@@ -10,11 +10,11 @@ import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
 import scala.concurrent.{ExecutionContext, Future}
 
-class MasterConnection(channelArrayParam: Array[ManagedChannel]) {
+class MasterConnectionDoneRequest(channelArrayParam: Array[ManagedChannel]) {
     val log: Logger = LoggerFactory.getLogger(getClass)
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
-    def broadcastConnectionIsFinished() = {
+    def broadcastConnectionDone() = {
         assert (MASTER_STATE == CONNECTION_FINISH)
 
         def broadcastConnectionResponse(x: ManagedChannel) = {

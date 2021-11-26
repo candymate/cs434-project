@@ -28,13 +28,13 @@ object Master {
         log.info("Connection phase start")
         log.info("Stopping main function until connection phase is completed")
         while (MASTER_STATE == CONNECTION_START) {Thread.sleep(500)}
-        val connectionClass = new MasterConnection(null)
-        connectionClass.broadcastConnectionIsFinished()
+        val connectionClass = new MasterConnectionDoneRequest(null)
+        connectionClass.broadcastConnectionDone()
         log.info("Connection phase successfully finished")
 
         log.info("Sampling phase start")
-        val samplingClass = new MasterSampleRequest(null)
-        samplingClass.sendSampleRequestToEveryClient()
+        val samplingClass = new MasterSampleStartRequest(null)
+        samplingClass.broadcastSampleStart()
 
         while (MASTER_STATE == SAMPLING_START) {Thread.sleep(500)}
         log.info("Sampling phase connection phase finished")
