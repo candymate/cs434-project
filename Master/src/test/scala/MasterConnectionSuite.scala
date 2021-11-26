@@ -33,7 +33,8 @@ class MasterServerSuite extends AnyFunSuite {
 
     test("server connects from client") {
        val openServer = Future {
-            val testConnection = new MasterServer(3, ExecutionContext.global)
+           Master.numOfRequiredConnections = 3
+            val testConnection = new MasterServer(ExecutionContext.global)
             testConnection.start()
 
            Thread.sleep(2000)

@@ -10,6 +10,7 @@ object Master {
     
     // key: machine order, value: ClientInfo
     var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
+    var numOfRequiredConnections: Int = 0
 
     def main(args: Array[String]): Unit = {
         val log = LoggerFactory.getLogger(getClass)
@@ -18,9 +19,10 @@ object Master {
         MasterArgumentHandler.handleArgument(args)
 
         log.info("Start master server")
-        val masterServer = new MasterServer(MasterArgumentHandler.slaveNum, ExecutionContext.global)
+        val masterServer = new MasterServer(ExecutionContext.global)
         masterServer.start()
-        log.info(s"started master server expecting ${MasterArgumentHandler.slaveNum} slave(s)")
+        assert(numOfRequiredConnections > 0)
+        log.info(s"started master server expecting ${numOfRequiredConnections} slave(s)")
         log.info("Successfully turned on master side server")
 
         log.info("Connection phase start")
