@@ -19,25 +19,28 @@ object Master {
         connectionClass.start()
 
         log.info("Stopping main function until connection phase is completed")
-        while (MASTER_STATE == CONNECTION_START) {Thread.sleep(3000)}
+        while (MASTER_STATE == CONNECTION_START) {Thread.sleep(500)}
+
+        connectionClass.broadcastConnectionIsFinished()
         log.info("Connection phase successfully finished")
 
         log.info("Sampling phase start")
-        MASTER_STATE = SAMPLING_START
-        val samplingClass = new MasterSampleSortRequest(connectionClass.clientInfoMap, null,
-            null)
+        val samplingClass = new MasterSampleRequest()
         samplingClass.sendSampleRequestToEveryClient()
+
+        while (MASTER_STATE == SAMPLING_START) {Thread.sleep(500)}
         log.info("Sampling phase connection phase finished")
+
         // sort records
         log.info("Sorting sampled records start")
-        val sortSampledRecords = new MasterSortSampledRecords(samplingClass.sampledData, MasterArgumentHandler.slaveNum)
+        // val sortSampledRecords = new MasterSortSampledRecords(samplingClass.sampledData, MasterArgumentHandler.slaveNum)
         log.info("Sorting sampled records finished")
 
         // sort/partitioning phase (sever not required in master)
         log.info("Sorting phase start")
-        val sortingClass = new MasterSampleSortRequest(connectionClass.clientInfoMap, null,
-            sortSampledRecords.pivotList)
-        sortingClass.sendSortRequestToEveryClient()
+        //val sortingClass = new MasterSampleSortRequest(connectionClass.clientInfoMap, null,
+        //    sortSampledRecords.pivotList)
+        // sortingClass.sendSortRequestToEveryClient()
         log.info("Sorting phase stop")
 
         // merging phase (server not required in master)

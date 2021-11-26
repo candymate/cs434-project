@@ -10,8 +10,8 @@ import org.mockito.IdiomaticMockito.StubbingOps
 import org.mockito.MockitoSugar.{mock, times, verify, when}
 import org.scalatestplus.junit.JUnitRunner
 import protobuf.connect
-import protobuf.connect.{ConnectRequest, Empty, connectServiceGrpc}
-import protobuf.connect.connectServiceGrpc.{bindService, connectService}
+import protobuf.connect.{ConnectRequest, Empty, connectMasterServiceGrpc}
+import protobuf.connect.connectMasterServiceGrpc.{bindService}
 
 import java.net.InetAddress
 import java.util.concurrent.{ExecutorService, Executors}
@@ -24,14 +24,14 @@ class WorkerSuite extends AnyFunSuite {
 
     test("Client unit test") {
         val serverName = InProcessServerBuilder.generateName()
-        val mockService = mock[connectServiceGrpc.connectService]
+        val mockService = mock[connectMasterServiceGrpc.connectMasterService]
 
-        when(mockService.connect(any(classOf[ConnectRequest]))).thenReturn(Future.successful(Empty()))
+        when(mockService.workerToMasterConnect(any(classOf[ConnectRequest]))).thenReturn(Future.successful(Empty()))
 
         val server: Server = InProcessServerBuilder
             .forName(serverName)
             .directExecutor()
-            .addService(connectServiceGrpc.bindService(mockService, executorContext))
+            .addService(connectMasterServiceGrpc.bindService(mockService, executorContext))
             .build()
             .start()
 
@@ -44,7 +44,7 @@ class WorkerSuite extends AnyFunSuite {
         workerConnection.initiateConnection()
 
         verify(mockService, times(1))
-            .connect(ArgumentMatchers.eq(ConnectRequest(InetAddress.getLocalHost().getHostAddress())))
+            .workerToMasterConnect(ArgumentMatchers.eq(ConnectRequest(InetAddress.getLocalHost().getHostAddress(), 8000)))
 
         server.shutdown()
 

@@ -2,7 +2,7 @@ import io.grpc.{ManagedChannelBuilder, StatusRuntimeException}
 import org.scalatest.funsuite.AnyFunSuite
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect.{ConnectRequest, connectServiceGrpc}
+import protobuf.connect.{ConnectRequest, connectMasterServiceGrpc}
 
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.concurrent.duration.Duration
@@ -17,12 +17,12 @@ class MasterConnectionSuite extends AnyFunSuite {
         val managedChannelBuilder = ManagedChannelBuilder.forAddress("localhost", 9000)
         managedChannelBuilder.usePlaintext()
         val channel = managedChannelBuilder.build()
-        val blockingStub = connectServiceGrpc.blockingStub(channel)
+        val blockingStub = connectMasterServiceGrpc.blockingStub(channel)
 
         def connect(): Unit = {
             val request = new ConnectRequest("localhost")
             try {
-                val response = blockingStub.connect(request)
+                val response = blockingStub.workerToMasterConnect(request)
             } catch {
                 case e: StatusRuntimeException => {
                     sys.exit(1)

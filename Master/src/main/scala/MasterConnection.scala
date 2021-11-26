@@ -1,9 +1,10 @@
 import Master.MASTER_STATE
 import MasterState._
+import channel.MasterToWorkerChannel
 import config.{ClientInfo, MasterServerConfig}
-import io.grpc.{Server, ServerBuilder}
+import io.grpc.{ManagedChannel, Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect.{ConnectRequest, Empty, connectServiceGrpc}
+import protobuf.connect.{ConnectRequest, ConnectResponse, Empty, connectMasterServiceGrpc, connectWorkerServiceGrpc}
 
 import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
@@ -20,7 +21,7 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
     def start(): Unit = {
         assert(Master.MASTER_STATE == CONNECTION_START)
         val serverBuilder = ServerBuilder.forPort(MasterServerConfig.port)
-        serverBuilder.addService(connectServiceGrpc.bindService(new connectService, executionContext))
+        serverBuilder.addService(connectMasterServiceGrpc.bindService(new connectService, executionContext))
         server = serverBuilder.build().start()
         log.info("Server started, listening on " + MasterServerConfig.port)
         sys.addShutdownHook {
@@ -42,17 +43,35 @@ class MasterConnection(numberOfRequiredConnections: Int, executionContext: Execu
         }
     }
 
-    private class connectService extends connectServiceGrpc.connectService {
+    def broadcastConnectionIsFinished() = {
+        assert (MASTER_STATE == CONNECTION_FINISH)
+
+        def broadcastConnectionResponse(x: ManagedChannel) = {
+            val blockingStub = connectWorkerServiceGrpc.blockingStub(x)
+            blockingStub.masterToWorkerConnectResponse(new ConnectResponse(
+                MasterToWorkerChannel.ipList, MasterToWorkerChannel.portList))
+        }
+
+        MasterToWorkerChannel.openMasterToWorkerChannelArray()
+        MasterToWorkerChannel.sendMessageToEveryClient(broadcastConnectionResponse)
+        MasterToWorkerChannel.closeMasterToWorkerChannelArray()
+
+        MASTER_STATE = SAMPLING_START
+    }
+
+    private class connectService extends connectMasterServiceGrpc.connectMasterService {
         private val lock = new ReentrantLock()
 
-        override def connect(request: ConnectRequest): Future[Empty] = synchronized {
-            log.info("connection established with " + request.ip + ":" + 9000)
+        override def workerToMasterConnect(request: ConnectRequest): Future[Empty] = synchronized {
+            log.info("connection established with " + request.ip + ":" + request.port)
 
             lock.lock()
             try {
-                clientInfoMap.put(clientInfoMap.size, new ClientInfo(request.ip, 8000))
+                clientInfoMap.put(clientInfoMap.size, new ClientInfo(request.ip, request.port))
                 if (numberOfRequiredConnections == clientInfoMap.size) {
                     log.info(s"Master successfully connected to ${numberOfRequiredConnections} client(s)")
+
+                    MasterToWorkerChannel.configureClientIpAndPort(request.ip, request.port)
 
                     println(s"${InetAddress.getLocalHost().getHostAddress()}:9000")
                     clientInfoMap foreach { case (_, v: ClientInfo) => print(s"${v.ip} ") }

@@ -2,8 +2,24 @@ syntax = "proto3";
 
 package protobuf;
 
-service connectService {
-  rpc connect(ConnectRequest) returns (Empty) {}
+// worker -> master (initiate connection )
+service connectMasterService {
+  rpc workerToMasterConnect(ConnectRequest) returns (Empty) {}
+}
+
+// master -> worker (indicate connection work is finished)
+service connectWorkerService {
+  rpc masterToWorkerConnectResponse(ConnectResponse) returns (Empty) {}
+}
+
+// worker -> master (indicate that sampling work is finished)
+service sampleMasterService {
+  rpc workerToMasterSampleResponse(SamplingResponse) returns (Empty) {}
+}
+
+// master -> worker (initiate sampling)
+service sampleWorkerService {
+  rpc masterToWorkerSampleRequest(SamplingRequest) returns (Empty) {}
 }
 
 service restPhaseService {
@@ -14,13 +30,19 @@ service restPhaseService {
 
 message ConnectRequest {
   string ip = 1;
+  int32 port = 2;
+}
+
+message ConnectResponse {
+  repeated string ipList = 1;
+  repeated int32 portList = 2;
 }
 
 message Empty {
 }
 
 message SamplingRequest {
-  map<int32, string> ipList = 1;
+
 }
 
 message SamplingResponse {
