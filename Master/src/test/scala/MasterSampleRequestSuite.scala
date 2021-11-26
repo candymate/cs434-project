@@ -1,3 +1,4 @@
+import MasterState._
 import config.ClientInfo
 import io.grpc.Server
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
@@ -7,29 +8,29 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar.{mock, times, verify, when}
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect.{SamplingRequest, SamplingResponse, SortingRequest, SortingResponse, restPhaseServiceGrpc}
+import protobuf.connect.{Empty, SamplingRequest, SamplingResponse, SortingRequest, SortingResponse, restPhaseServiceGrpc, sampleWorkerServiceGrpc}
 
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 @RunWith(classOf[JUnitRunner])
-class MasterSampleSortRequestSuite extends AnyFunSuite {
+class MasterSampleRequestSuite extends AnyFunSuite {
     implicit val threadPool: ExecutorService = Executors.newFixedThreadPool(8)
     implicit val executorContext: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
     test("sampling request test") {
         val serverName = InProcessServerBuilder.generateName()
-        val mockService = mock[restPhaseServiceGrpc.restPhaseService]
+        val mockService = mock[sampleWorkerServiceGrpc.sampleWorkerService]
 
-        when(mockService.sample(any(classOf[SamplingRequest]))).thenReturn(
-            Future.successful(SamplingResponse(List("Apple", "Banana", "Cat", "Dent")))
+        when(mockService.masterToWorkerSampleRequest(any(classOf[SamplingRequest]))).thenReturn(
+            Future(Empty())
         )
 
         val server: Server = InProcessServerBuilder
             .forName(serverName)
             .directExecutor()
-            .addService(restPhaseServiceGrpc.bindService(mockService, executorContext))
+            .addService(sampleWorkerServiceGrpc.bindService(mockService, executorContext))
             .build()
             .start()
 
@@ -39,23 +40,21 @@ class MasterSampleSortRequestSuite extends AnyFunSuite {
             .build()
 
         val channelArray = Array(channel)
-        val clientInfoMap = mutable.Map[Int, ClientInfo]()
 
-        clientInfoMap.put(1, new ClientInfo("localhost", 8000))
+        Master.MASTER_STATE = SAMPLING_START
 
-        val masterServer = new MasterSampleSortRequest(clientInfoMap, channelArray, null)
+        val masterServer = new MasterSampleRequest(channelArray)
         masterServer.sendSampleRequestToEveryClient()
 
         verify(mockService, times(1))
-            .sample(ArgumentMatchers.eq(SamplingRequest(
-                clientInfoMap.map{ case(k, v) => k -> v. ip}.toMap)))
+            .masterToWorkerSampleRequest(ArgumentMatchers.eq(SamplingRequest()))
 
         server.shutdown()
 
         Thread.sleep(500)
     }
 
-    test("sorting request test") {
+    /*test("sorting request test") {
         val serverName = InProcessServerBuilder.generateName()
         val mockService = mock[restPhaseServiceGrpc.restPhaseService]
 
@@ -91,5 +90,5 @@ class MasterSampleSortRequestSuite extends AnyFunSuite {
         server.shutdown()
 
         Thread.sleep(500)
-    }
+    }*/
 }

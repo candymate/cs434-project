@@ -25,7 +25,7 @@ object Master {
         log.info("Connection phase successfully finished")
 
         log.info("Sampling phase start")
-        val samplingClass = new MasterSampleRequest()
+        val samplingClass = new MasterSampleRequest(null)
         samplingClass.sendSampleRequestToEveryClient()
 
         while (MASTER_STATE == SAMPLING_START) {Thread.sleep(500)}

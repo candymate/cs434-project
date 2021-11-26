@@ -68,20 +68,6 @@ class WorkerServer (executionContext: ExecutionContext) { self =>
         }
     }
 
-    private class sampleWorkerService extends sampleWorkerServiceGrpc.sampleWorkerService {
-        private val lock = new ReentrantLock()
-
-        override def masterToWorkerSampleRequest(request: SamplingRequest): Future[Empty] = {
-            assert(WORKER_STATE == SAMPLING_START)
-
-            WORKER_STATE = SAMPLING_FINISH
-
-            Future.successful {
-                Empty()
-            }
-        }
-    }
-
     private class restPhaseService extends restPhaseServiceGrpc.restPhaseService {
         private val lock = new ReentrantLock()
 

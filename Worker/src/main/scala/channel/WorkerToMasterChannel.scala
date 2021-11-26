@@ -28,7 +28,7 @@ object WorkerToMasterChannel {
 
     def closeWorkerToMasterChannel(): Unit = {
         log.info("worker to master channel shutdown")
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+        channel.shutdown()
     }
 
 }

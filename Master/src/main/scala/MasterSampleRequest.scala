@@ -5,8 +5,9 @@ import io.grpc.ManagedChannel
 import org.slf4j.LoggerFactory
 import protobuf.connect.{SamplingRequest, sampleWorkerServiceGrpc}
 
-class MasterSampleRequest {
+class MasterSampleRequest (channelArrayParam: Array[ManagedChannel]) {
     val log = LoggerFactory.getLogger(getClass)
+    var channelArray: Array[ManagedChannel] = channelArrayParam
 
     def sendSampleRequestToEveryClient() = {
         assert(MASTER_STATE == SAMPLING_START)
@@ -16,9 +17,13 @@ class MasterSampleRequest {
             blockingStub.masterToWorkerSampleRequest(new SamplingRequest())
         }
 
-        MasterToWorkerChannel.openMasterToWorkerChannelArray()
-        MasterToWorkerChannel.sendMessageToEveryClient(broadcastSampleMessage)
-        MasterToWorkerChannel.closeMasterToWorkerChannelArray()
+        if (channelArray == null) {
+            MasterToWorkerChannel.openMasterToWorkerChannelArray()
+            MasterToWorkerChannel.sendMessageToEveryClient(broadcastSampleMessage)
+            MasterToWorkerChannel.closeMasterToWorkerChannelArray()
+        } else {
+            channelArray foreach(x => broadcastSampleMessage(x))
+        }
 
         MASTER_STATE = SAMPLING_FINISH
     }
