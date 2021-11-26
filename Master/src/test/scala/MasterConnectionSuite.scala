@@ -9,11 +9,11 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 @RunWith(classOf[JUnitRunner])
-class MasterConnectionSuite extends AnyFunSuite {
+class MasterServerSuite extends AnyFunSuite {
     implicit val threadPool: ExecutorService = Executors.newFixedThreadPool(8)
     implicit val executorContext: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
-    private class MasterConnectionMock() {
+    private class MasterServerMock() {
         val managedChannelBuilder = ManagedChannelBuilder.forAddress("localhost", 9000)
         managedChannelBuilder.usePlaintext()
         val channel = managedChannelBuilder.build()
@@ -33,7 +33,7 @@ class MasterConnectionSuite extends AnyFunSuite {
 
     test("server connects from client") {
        val openServer = Future {
-            val testConnection = new MasterConnection(3, ExecutionContext.global)
+            val testConnection = new MasterServer(3, ExecutionContext.global)
             testConnection.start()
 
            Thread.sleep(2000)
@@ -46,9 +46,9 @@ class MasterConnectionSuite extends AnyFunSuite {
             testConnection.stop()
         }
 
-        val mockClient1 = new MasterConnectionMock()
-        val mockClient2 = new MasterConnectionMock()
-        val mockClient3 = new MasterConnectionMock()
+        val mockClient1 = new MasterServerMock()
+        val mockClient2 = new MasterServerMock()
+        val mockClient3 = new MasterServerMock()
 
         Thread.sleep(100)
 

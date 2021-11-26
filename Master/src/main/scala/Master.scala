@@ -17,15 +17,16 @@ object Master {
         log.info("Handling argument")
         MasterArgumentHandler.handleArgument(args)
 
-        log.info("Connection phase start")
-        val connectionClass = new MasterConnection(MasterArgumentHandler.slaveNum, ExecutionContext.global)
-
+        log.info("Start master server")
+        val masterServer = new MasterServer(MasterArgumentHandler.slaveNum, ExecutionContext.global)
+        masterServer.start()
         log.info(s"started master server expecting ${MasterArgumentHandler.slaveNum} slave(s)")
-        connectionClass.start()
+        log.info("Successfully turned on master side server")
 
+        log.info("Connection phase start")
         log.info("Stopping main function until connection phase is completed")
         while (MASTER_STATE == CONNECTION_START) {Thread.sleep(500)}
-
+        val connectionClass = new MasterConnection(null)
         connectionClass.broadcastConnectionIsFinished()
         log.info("Connection phase successfully finished")
 
