@@ -2,7 +2,6 @@ import org.slf4j.LoggerFactory
 
 object MasterArgumentHandler {
     val log = LoggerFactory.getLogger(getClass)
-    var slaveNum = 0
 
     def handleArgument(args: Array[String]) = {
         if (args.length != 1) {
@@ -12,7 +11,7 @@ object MasterArgumentHandler {
 
         require(args.length == 1)
 
-        slaveNum = try {
+        Master.numOfRequiredConnections = try {
             args(0).toInt
         } catch {
             case e: Exception => {

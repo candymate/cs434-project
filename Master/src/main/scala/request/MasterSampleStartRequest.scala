@@ -5,11 +5,11 @@ import io.grpc.ManagedChannel
 import org.slf4j.LoggerFactory
 import protobuf.connect.{SamplingRequest, sampleWorkerServiceGrpc}
 
-class MasterSampleRequest (channelArrayParam: Array[ManagedChannel]) {
+class MasterSampleStartRequest (channelArrayParam: Array[ManagedChannel]) {
     val log = LoggerFactory.getLogger(getClass)
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
-    def sendSampleRequestToEveryClient() = {
+    def broadcastSampleStart() = {
         assert(MASTER_STATE == SAMPLING_START)
 
         def broadcastSampleMessage(x: ManagedChannel) = {

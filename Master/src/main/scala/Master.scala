@@ -1,10 +1,16 @@
 import MasterState._
+import config.ClientInfo
+import scala.collection.mutable
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
 
 object Master {
     @volatile var MASTER_STATE: MasterState = CONNECTION_START
+    
+    // key: machine order, value: ClientInfo
+    var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
+    var numOfRequiredConnections: Int = 0
 
     def main(args: Array[String]): Unit = {
         val log = LoggerFactory.getLogger(getClass)
@@ -12,21 +18,23 @@ object Master {
         log.info("Handling argument")
         MasterArgumentHandler.handleArgument(args)
 
+        log.info("Start master server")
+        val masterServer = new MasterServer(ExecutionContext.global)
+        masterServer.start()
+        assert(numOfRequiredConnections > 0)
+        log.info(s"started master server expecting ${numOfRequiredConnections} slave(s)")
+        log.info("Successfully turned on master side server")
+
         log.info("Connection phase start")
-        val connectionClass = new MasterConnection(MasterArgumentHandler.slaveNum, ExecutionContext.global)
-
-        log.info(s"started master server expecting ${MasterArgumentHandler.slaveNum} slave(s)")
-        connectionClass.start()
-
         log.info("Stopping main function until connection phase is completed")
         while (MASTER_STATE == CONNECTION_START) {Thread.sleep(500)}
-
-        connectionClass.broadcastConnectionIsFinished()
+        val connectionClass = new MasterConnectionDoneRequest(null)
+        connectionClass.broadcastConnectionDone()
         log.info("Connection phase successfully finished")
 
         log.info("Sampling phase start")
-        val samplingClass = new MasterSampleRequest(null)
-        samplingClass.sendSampleRequestToEveryClient()
+        val samplingClass = new MasterSampleStartRequest(null)
+        samplingClass.broadcastSampleStart()
 
         while (MASTER_STATE == SAMPLING_START) {Thread.sleep(500)}
         log.info("Sampling phase connection phase finished")
