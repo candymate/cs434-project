@@ -5,7 +5,7 @@ import io.grpc.ManagedChannel
 import org.slf4j.LoggerFactory
 import protobuf.connect.{SamplingRequest, sampleWorkerServiceGrpc}
 
-class MasterSampleStartRequest (channelArrayParam: Array[ManagedChannel]) {
+class Request_MasterSample(channelArrayParam: Array[ManagedChannel]) {
     val log = LoggerFactory.getLogger(getClass)
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
@@ -18,13 +18,11 @@ class MasterSampleStartRequest (channelArrayParam: Array[ManagedChannel]) {
         }
 
         if (channelArray == null) {
-            MasterToWorkerChannel.openMasterToWorkerChannelArray()
+            // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastSampleMessage)
-            MasterToWorkerChannel.closeMasterToWorkerChannelArray()
+            // MasterToWorkerChannel.closeMasterToWorkerChannelArray()
         } else {
             channelArray foreach(x => broadcastSampleMessage(x))
         }
-
-        MASTER_STATE = SAMPLING_FINISH
     }
 }

@@ -1,9 +1,17 @@
-class MasterSortSampledRecords(sampledRecords: List[String], numberOfConnections: Int) {
-    val sortedSampledRecords: List[String] = sampledRecords.sortWith(_ < _)
-    val pivotIndex: List[Int] =
-        for {
-            i <- List.range(0, numberOfConnections)
-        } yield {i * (sampledRecords.size / numberOfConnections)}
+import Master.MASTER_STATE
+import MasterState._
 
-    val pivotList: List[String] = pivotIndex.map(sortedSampledRecords(_))
+object MasterSortSampledRecords {
+    var pivotIndex: List[Int] = Nil
+    var pivotList: List[String] = Nil
+
+    def pivotFromSampledRecords(sampledRecords: List[String]) = {
+        val sortedSampledRecords = sampledRecords.sortWith(_ < _)
+        pivotIndex = for {
+            i <- List.range(0, Master.numOfRequiredConnections)
+        } yield {i * (sampledRecords.size / Master.numOfRequiredConnections)}
+        pivotList = pivotIndex.map(sortedSampledRecords(_))
+
+        MASTER_STATE = SORT_PARTITION_START
+    }
 }

@@ -8,7 +8,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar.{mock, times, verify, when}
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect.{Empty, SamplingRequest, SamplingResponse, SortingRequest, SortingResponse, restPhaseServiceGrpc, sampleWorkerServiceGrpc}
+import protobuf.connect.{Empty, SamplingRequest, SamplingResponse, SortingRequest, SortingResponse, sampleWorkerServiceGrpc}
 
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.collection.mutable
@@ -43,7 +43,7 @@ class MasterSampleRequestSuite extends AnyFunSuite {
 
         Master.MASTER_STATE = SAMPLING_START
 
-        val masterServer = new MasterSampleStartRequest(channelArray)
+        val masterServer = new Request_MasterSample(channelArray)
         masterServer.broadcastSampleStart()
 
         verify(mockService, times(1))

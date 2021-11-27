@@ -1,14 +1,9 @@
 import Master.MASTER_STATE
 import MasterState._
 import channel.MasterToWorkerChannel
-import config.{ClientInfo, MasterServerConfig}
-import io.grpc.{ManagedChannel, Server, ServerBuilder}
+import io.grpc.ManagedChannel
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect.{ConnectRequest, ConnectResponse, Empty, connectMasterServiceGrpc, connectWorkerServiceGrpc}
-
-import java.net.InetAddress
-import java.util.concurrent.locks.ReentrantLock
-import scala.concurrent.{ExecutionContext, Future}
+import protobuf.connect.{ConnectResponse, connectWorkerServiceGrpc}
 
 class MasterConnectionDoneRequest(channelArrayParam: Array[ManagedChannel]) {
     val log: Logger = LoggerFactory.getLogger(getClass)
@@ -26,7 +21,7 @@ class MasterConnectionDoneRequest(channelArrayParam: Array[ManagedChannel]) {
         if (channelArray == null) {
             MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastConnectionResponse)
-            MasterToWorkerChannel.closeMasterToWorkerChannelArray()
+            // MasterToWorkerChannel.closeMasterToWorkerChannelArray()
         } else {
             channelArray foreach(x => broadcastConnectionResponse(x))
         }

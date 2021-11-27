@@ -13,8 +13,8 @@ object MasterToWorkerChannel {
     def configureClientIpAndPort(ip: String, port: Int) = {
         require(ip != null)
 
-        this.ipList :+ ip
-        this.portList :+ port
+        this.ipList = this.ipList :+ ip
+        this.portList = this.portList :+ port
     }
 
     def openMasterToWorkerChannelArray() = {
@@ -25,7 +25,7 @@ object MasterToWorkerChannel {
                 val managedChannelBuilder = ManagedChannelBuilder.forAddress(x._1, x._2)
                 managedChannelBuilder.usePlaintext()
                 val channel = managedChannelBuilder.build()
-                channelList :+ channel
+                this.channelList = this.channelList :+ channel
             }
         }
     }

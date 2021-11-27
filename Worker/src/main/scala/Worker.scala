@@ -29,10 +29,14 @@ object Worker {
         while (WORKER_STATE == SAMPLING_START) {Thread.sleep(500)}
         WorkerSampling.sendSampledDataToMaster()
         while (WORKER_STATE == SAMPLING_FINISH) {Thread.sleep(500)}
-        log.info("Sampling phase stop")
+        log.info("Sampling phase successfully finished")
 
         log.info("Sorting phase start")
-
+        while (WORKER_STATE == SORT_PARTITION_START) {Thread.sleep(500)}
+        WorkerSortAndPartition.sortAndPartitionFromInputFileList(WorkerArgumentHandler.inputFileArray,
+            WorkerArgumentHandler.outputFile)
+        WorkerSortAndPartition.sendSortResponseToMaster()
+        while (WORKER_STATE == SORT_PARTITION_FINISH) {Thread.sleep(500)}
         log.info("Sorting phase stop")
     }
 }

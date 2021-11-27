@@ -28,15 +28,11 @@ class WorkerConnection(channelParam: ManagedChannel) {
         try {
             logger.info("connection request sent")
             val response = blockingStub.workerToMasterConnect(request)
-            WORKER_STATE = SAMPLING_START
+            WORKER_STATE = CONNECTION_FINISH
         } catch {
             case e: StatusRuntimeException => {
                 logger.error("connection rpc failed")
                 sys.exit(1)
-            }
-        } finally {
-            if (channelParam == null) {
-                WorkerToMasterChannel.closeWorkerToMasterChannel()
             }
         }
     }

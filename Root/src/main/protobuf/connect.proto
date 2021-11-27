@@ -22,10 +22,14 @@ service sampleWorkerService {
   rpc masterToWorkerSampleRequest(SamplingRequest) returns (Empty) {}
 }
 
-service restPhaseService {
-  rpc sample(SamplingRequest) returns (SamplingResponse) {}
-  rpc sort(SortingRequest) returns (SortingResponse) {}
-  rpc shuffleStart(ShufflingRequest) returns (ShufflingResponse) {}
+// worker -> master (indicate that sorting work is finished)
+service sortMasterService {
+  rpc workerToMasterSortResponse(SortingResponse) returns (Empty) {}
+}
+
+// master -> worker (initiate sorting)
+service sortWorkerService {
+  rpc masterToWorkerSortRequest(SortingRequest) returns (Empty) {}
 }
 
 message ConnectRequest {

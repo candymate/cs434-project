@@ -1,3 +1,9 @@
+import Worker.WORKER_STATE
+import WorkerState._
+import channel.WorkerToMasterChannel
+import io.grpc.StatusRuntimeException
+import protobuf.connect.{SortingResponse, sortMasterServiceGrpc}
+
 import java.io.{BufferedWriter, File, FileWriter}
 import scala.annotation.tailrec
 import scala.io.Source.fromFile
@@ -5,13 +11,29 @@ import scala.io.Source.fromFile
 object WorkerSortAndPartition {
     var fileNamePartition = 0
     val numberOfRecords = 1000000
+    var pivotList: List[String] = Nil
+
+    def sendSortResponseToMaster() = {
+        val blockingStub = sortMasterServiceGrpc.blockingStub(WorkerToMasterChannel.channel)
+
+        try {
+            val request = blockingStub.workerToMasterSortResponse(new SortingResponse(true))
+            WORKER_STATE = SHUFFLE_START
+        } catch {
+            case e: StatusRuntimeException => {
+                sys.exit(1)
+            }
+        }
+    }
 
     // all file list
     def sortAndPartitionFromInputFileList(inputPathFileList: Array[File],
-                                          outputPathFile: File,
-                                          pivotMap: List[String]) = {
+                                          outputPathFile: File) = {
+        assert(WORKER_STATE == SORT_PARTITION_FINISH)
+        assert(pivotList.size != 0)
+
         inputPathFileList foreach {
-            x => sortAndPartitionFromInputFile(x, outputPathFile, pivotMap)
+            x => sortAndPartitionFromInputFile(x, outputPathFile, pivotList)
         }
     }
 

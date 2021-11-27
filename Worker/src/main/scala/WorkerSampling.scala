@@ -13,17 +13,6 @@ import scala.io.Source.{fromBytes, fromFile}
 object WorkerSampling {
     val numberOfRecords = 100000
 
-    private class sampleWorkerService extends sampleWorkerServiceGrpc.sampleWorkerService {
-        override def masterToWorkerSampleRequest(request: SamplingRequest): Future[Empty] = {
-            assert(WORKER_STATE == SAMPLING_START)
-            WORKER_STATE = SAMPLING_FINISH
-
-            Future.successful {
-                Empty()
-            }
-        }
-    }
-
     def sampleFromFile(inputFilePath: File): List[String] = {
         val fromFileBuffer: BufferedSource = fromFile(inputFilePath.getPath)
         val numberOfLines = fromFileBuffer.getLines().size
@@ -42,7 +31,7 @@ object WorkerSampling {
 
     def sendSampledDataToMaster() = {
         val sampledData = sampleFromFile(WorkerArgumentHandler.inputFileArray(0))
-        WorkerToMasterChannel.openWorkerToMasterChannel()
+        // WorkerToMasterChannel.openWorkerToMasterChannel()
 
         val blockingStub = sampleMasterServiceGrpc.blockingStub(WorkerToMasterChannel.channel)
 
@@ -50,13 +39,11 @@ object WorkerSampling {
             val request = blockingStub.workerToMasterSampleResponse(new SamplingResponse(
                 sampledData
             ))
-            WORKER_STATE = SORTING_START
+            WORKER_STATE = SORT_PARTITION_START
         } catch {
             case e: StatusRuntimeException => {
                 sys.exit(1)
             }
-        } finally {
-            WorkerToMasterChannel.closeWorkerToMasterChannel()
         }
     }
 }
