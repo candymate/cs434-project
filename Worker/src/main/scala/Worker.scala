@@ -23,6 +23,8 @@ object Worker {
         log.info("Successfully turned on worker side server")
 
         log.info("Epsilon transition: SERVER_FINISH -> CONNECTION_START")
+        WORKER_STATE = CONNECTION_START
+        Thread.sleep(5000)
 
         log.info("Connection phase start")
         val workerConnection = new Request_WorkerConnection(null)
@@ -36,6 +38,7 @@ object Worker {
 
         log.info("Epsilon transition: CONNECTION_FINISH -> SAMPLING_START")
         WORKER_STATE = SAMPLING_START
+        Thread.sleep(5000)
 
         log.info("Sampling phase start")
         log.info("Worker Sampling Barrier 1: SAMPLING_START <-> SAMPLING_SAMPLE")
@@ -49,10 +52,12 @@ object Worker {
         while (WORKER_STATE == SAMPLING_SAMPLE) {
             Thread.sleep(500)
         }
+        Request_WorkerSamplingSecond.sendSampledDataToMaster()
         log.info("Sampling phase successfully finished")
 
         log.info("Epsilon transition: SAMPLING_FINISH -> SORT_PARTITION_START")
         WORKER_STATE = SORT_PARTITION_START
+        Thread.sleep(5000)
 
         log.info("Sorting phase start")
         log.info("Worker Sort/Partition Barrier: SORT_PARTITION_START <-> SORT_PARTITION_FINISH")
@@ -66,5 +71,6 @@ object Worker {
 
         log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")
         WORKER_STATE = MERGE_START
+        Thread.sleep(5000)
     }
 }

@@ -30,6 +30,7 @@ object Master {
 
         log.info("Epsilon transition: SERVER_FINISH -> CONNECTION_START")
         MASTER_STATE = CONNECTION_START
+        Thread.sleep(5000)
 
         assert(numOfRequiredConnections > 0)
         log.info(s"started master server expecting ${numOfRequiredConnections} slave(s)")
@@ -46,6 +47,7 @@ object Master {
 
         log.info("Epsilon transition: CONNECTION_FINISH -> SAMPLING_START")
         MASTER_STATE = SAMPLING_START
+        Thread.sleep(5000)
 
         log.info("Sampling phase start")
         val samplingClass = new Request_MasterSampleFirst(null)
@@ -68,6 +70,7 @@ object Master {
 
         log.info("Epsilon transition: SAMPLING_FINISH -> SORT_PARTITION_START")
         MASTER_STATE = SORT_PARTITION_START
+        Thread.sleep(5000)
 
         log.info("Sorting phase start")
         val sortingClass = new Request_MasterSort(null)
@@ -81,6 +84,7 @@ object Master {
 
         log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")
         MASTER_STATE = MERGE_START
+        Thread.sleep(5000)
 
         // merging phase (server not required in master)
 

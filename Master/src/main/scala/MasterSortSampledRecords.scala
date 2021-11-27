@@ -13,7 +13,5 @@ object MasterSortSampledRecords {
             i * (sampledRecords.size / Master.numOfRequiredConnections)
         }
         pivotList = pivotIndex.map(sortedSampledRecords(_))
-
-        MASTER_STATE = SORT_PARTITION_START
     }
 }

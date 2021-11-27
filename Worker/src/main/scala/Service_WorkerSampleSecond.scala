@@ -11,6 +11,7 @@ object Service_WorkerSampleSecond {
         override def pivotResult(request: PivotResult): Future[Empty] = {
             assert(WORKER_STATE == SAMPLING_SAMPLE)
             pivotList = request.pivotList.toList
+            WorkerSortAndPartition.pivotList = pivotList
             WORKER_STATE = SAMPLING_FINISH
 
             Future.successful {
