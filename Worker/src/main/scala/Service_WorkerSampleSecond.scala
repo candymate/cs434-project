@@ -1,5 +1,5 @@
 import Worker.WORKER_STATE
-import WorkerState.{SAMPLING_SAMPLE, SAMPLING_FINISH}
+import WorkerState.{SAMPLING_FINISH, SAMPLING_SAMPLE}
 import protobuf.connect.{Empty, PivotResult, samplingSampleToSamplingFinishWorkerGrpc}
 
 import scala.concurrent.Future

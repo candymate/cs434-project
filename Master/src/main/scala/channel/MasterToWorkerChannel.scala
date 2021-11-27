@@ -2,7 +2,6 @@ package channel
 
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import org.slf4j.LoggerFactory
-import protobuf.connect.Empty
 
 object MasterToWorkerChannel {
     val log = LoggerFactory.getLogger(getClass)

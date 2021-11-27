@@ -17,7 +17,9 @@ object Worker {
         workerServer.start()
 
         log.info("Worker server barrier: SERVER_START <-> SERVER_FINISH")
-        while (WORKER_STATE == SERVER_START) {Thread.sleep(500)}
+        while (WORKER_STATE == SERVER_START) {
+            Thread.sleep(500)
+        }
         log.info("Successfully turned on worker side server")
 
         log.info("Epsilon transition: SERVER_FINISH -> CONNECTION_START")
@@ -27,7 +29,9 @@ object Worker {
         workerConnection.initiateConnection()
 
         log.info("Worker Connection Phase Barrier: CONNECTION_START <-> CONNECTION_FINISH")
-        while (WORKER_STATE == CONNECTION_START) {Thread.sleep(500)}
+        while (WORKER_STATE == CONNECTION_START) {
+            Thread.sleep(500)
+        }
         log.info("Connection phase successfully finished")
 
         log.info("Epsilon transition: CONNECTION_FINISH -> SAMPLING_START")
@@ -35,12 +39,16 @@ object Worker {
 
         log.info("Sampling phase start")
         log.info("Worker Sampling Barrier 1: SAMPLING_START <-> SAMPLING_SAMPLE")
-        while (WORKER_STATE == SAMPLING_START) {Thread.sleep(500)}
+        while (WORKER_STATE == SAMPLING_START) {
+            Thread.sleep(500)
+        }
 
         Request_WorkerSamplingFirst.sendSampledDataToMaster()
 
         log.info("Worker Sampling Barrier 2: SAMPLING_SAMPLE <-> SAMPLING_FINISH")
-        while (WORKER_STATE == SAMPLING_SAMPLE) {Thread.sleep(500)}
+        while (WORKER_STATE == SAMPLING_SAMPLE) {
+            Thread.sleep(500)
+        }
         log.info("Sampling phase successfully finished")
 
         log.info("Epsilon transition: SAMPLING_FINISH -> SORT_PARTITION_START")
@@ -48,7 +56,9 @@ object Worker {
 
         log.info("Sorting phase start")
         log.info("Worker Sort/Partition Barrier: SORT_PARTITION_START <-> SORT_PARTITION_FINISH")
-        while (WORKER_STATE == SORT_PARTITION_START) {Thread.sleep(500)}
+        while (WORKER_STATE == SORT_PARTITION_START) {
+            Thread.sleep(500)
+        }
         WorkerSortAndPartition.sortAndPartitionFromInputFileList(WorkerArgumentHandler.inputFileArray,
             WorkerArgumentHandler.outputFile)
         Request_WorkerSort.sendSortFinished()

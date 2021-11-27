@@ -12,7 +12,7 @@ class WorkerSamplingSuite extends AnyFunSuite {
 
         val stringList = Request_WorkerSamplingFirst.sampleFromFile(testFile)
 
-        assertResult(3000) (stringList.size)
+        assertResult(3000)(stringList.size)
         assert("AsfAGHM5om".equals(stringList(0)))
         assert("Ga]QGzP2q)".equals(stringList(2999)))
     }

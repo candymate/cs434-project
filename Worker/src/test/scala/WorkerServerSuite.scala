@@ -1,14 +1,9 @@
-import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import org.junit.runner.RunWith
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect.{SamplingRequest, SamplingResponse}
 
-import java.io.File
 import java.util.concurrent.{ExecutorService, Executors}
-import scala.collection.mutable
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @RunWith(classOf[JUnitRunner])
 class WorkerServerSuite extends AnyFunSuite {

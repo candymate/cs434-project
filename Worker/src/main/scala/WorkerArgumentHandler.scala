@@ -1,5 +1,4 @@
 import channel.WorkerToMasterChannel
-import config.MasterConfig
 import org.slf4j.LoggerFactory
 
 import java.io.File

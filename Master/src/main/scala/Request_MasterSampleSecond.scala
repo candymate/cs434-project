@@ -3,7 +3,7 @@ import MasterState.SAMPLING_PIVOT
 import channel.MasterToWorkerChannel
 import io.grpc.ManagedChannel
 import org.slf4j.LoggerFactory
-import protobuf.connect.{PivotResult, samplingSampleToSamplingFinishWorkerGrpc, samplingStartToSamplingSampleWorkerGrpc}
+import protobuf.connect.{PivotResult, samplingSampleToSamplingFinishWorkerGrpc}
 
 class Request_MasterSampleSecond(channelArrayParam: Array[ManagedChannel]) {
     val log = LoggerFactory.getLogger(getClass)

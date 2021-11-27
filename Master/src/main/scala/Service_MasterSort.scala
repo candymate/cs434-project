@@ -1,11 +1,8 @@
 import Master.MASTER_STATE
 import MasterState._
-import channel.MasterToWorkerChannel
-import config.ClientInfo
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect.{ConnectRequest, Empty, SamplingResponse, SortingResponse, connectMasterServiceGrpc, sampleMasterServiceGrpc, sortMasterServiceGrpc, sortPartitionStartToSortPartitionFinishMasterGrpc}
+import protobuf.connect.{Empty, sortPartitionStartToSortPartitionFinishMasterGrpc}
 
-import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
 import scala.concurrent.Future
 

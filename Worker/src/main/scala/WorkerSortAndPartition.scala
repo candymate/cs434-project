@@ -1,8 +1,5 @@
 import Worker.WORKER_STATE
 import WorkerState._
-import channel.WorkerToMasterChannel
-import io.grpc.StatusRuntimeException
-import protobuf.connect.{SortingResponse, sortMasterServiceGrpc}
 
 import java.io.{BufferedWriter, File, FileWriter}
 import scala.annotation.tailrec
@@ -36,9 +33,9 @@ object WorkerSortAndPartition {
 
     @tailrec
     def makeSortedPartition(sortedDataFromFile: List[String], pivotMap: List[String],
-                           outputPathFile: String, targetMachine: Int): Any = {
+                            outputPathFile: String, targetMachine: Int): Any = {
         pivotMap match {
-            case head::tail => {
+            case head :: tail => {
                 if (tail.size != 0) {
                     val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < tail.head)
                     writeToFile(outputPathFile, firstList, targetMachine)
@@ -61,7 +58,7 @@ object WorkerSortAndPartition {
     }
 
     private def generateName(targetWorker: Int): String = {
-        val fileName = "unshuffled." + targetWorker + "." +  fileNamePartition
+        val fileName = "unshuffled." + targetWorker + "." + fileNamePartition
         fileName
     }
 }

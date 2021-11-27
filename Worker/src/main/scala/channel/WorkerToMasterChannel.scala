@@ -3,8 +3,6 @@ package channel
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import org.slf4j.LoggerFactory
 
-import java.util.concurrent.TimeUnit
-
 object WorkerToMasterChannel {
     val log = LoggerFactory.getLogger(getClass)
     var ip: String = null

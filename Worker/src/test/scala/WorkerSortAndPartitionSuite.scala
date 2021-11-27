@@ -15,7 +15,7 @@ class WorkerSortAndPartitionSuite extends AnyFunSuite {
         val pivotList = List("AsfAGHM5om")
 
         WorkerSortAndPartition.
-        sortAndPartitionFromInputFile(testDirectory, testOutputDirectory, pivotList)
+            sortAndPartitionFromInputFile(testDirectory, testOutputDirectory, pivotList)
 
         val file1Size = fromFile("Worker//output//unshuffled.0.0").getLines().size
 

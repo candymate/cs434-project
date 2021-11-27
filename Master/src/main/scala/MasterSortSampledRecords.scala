@@ -9,7 +9,9 @@ object MasterSortSampledRecords {
         val sortedSampledRecords = sampledRecords.sortWith(_ < _)
         pivotIndex = for {
             i <- List.range(0, Master.numOfRequiredConnections)
-        } yield {i * (sampledRecords.size / Master.numOfRequiredConnections)}
+        } yield {
+            i * (sampledRecords.size / Master.numOfRequiredConnections)
+        }
         pivotList = pivotIndex.map(sortedSampledRecords(_))
 
         MASTER_STATE = SORT_PARTITION_START

@@ -2,7 +2,7 @@ import Worker.WORKER_STATE
 import WorkerState.SORT_PARTITION_FINISH
 import channel.WorkerToMasterChannel
 import io.grpc.StatusRuntimeException
-import protobuf.connect.{Empty, SamplingResponse, sortPartitionStartToSortPartitionFinishMasterGrpc}
+import protobuf.connect.{Empty, sortPartitionStartToSortPartitionFinishMasterGrpc}
 
 object Request_WorkerSort {
     def sendSortFinished(): Unit = {

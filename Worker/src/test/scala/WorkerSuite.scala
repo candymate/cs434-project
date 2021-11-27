@@ -1,17 +1,12 @@
-import config.MasterConfig
 import io.grpc.Server
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
-import org.scalatest.funsuite.AnyFunSuite
 import org.junit.runner.RunWith
-import org.mockito.AdditionalAnswers.delegatesTo
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.IdiomaticMockito.StubbingOps
 import org.mockito.MockitoSugar.{mock, times, verify, when}
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect
-import protobuf.connect.{ConnectRequest, Empty, connectMasterServiceGrpc}
-import protobuf.connect.connectMasterServiceGrpc.{bindService}
+import protobuf.connect.{ConnectRequest, Empty}
 
 import java.net.InetAddress
 import java.util.concurrent.{ExecutorService, Executors}

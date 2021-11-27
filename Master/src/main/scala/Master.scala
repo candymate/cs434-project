@@ -1,13 +1,13 @@
 import MasterState._
 import config.ClientInfo
-import scala.collection.mutable
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 
 object Master {
     @volatile var MASTER_STATE: MasterState = SERVER_START
-    
+
     // key: machine order, value: ClientInfo
     var clientInfoMap: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
     var numOfRequiredConnections: Int = 0
@@ -23,7 +23,9 @@ object Master {
         masterServer.start()
 
         log.info("Master server barrier: SERVER_START <-> SERVER_FINISH")
-        while (MASTER_STATE == SERVER_START) {Thread.sleep(500)}
+        while (MASTER_STATE == SERVER_START) {
+            Thread.sleep(500)
+        }
         log.info("Successfully turned on master side server")
 
         log.info("Epsilon transition: SERVER_FINISH -> CONNECTION_START")
@@ -34,7 +36,9 @@ object Master {
 
         log.info("Connection phase start")
         log.info("Master Connection Barrier: CONNECTION_START <-> CONNECTION_FINISH")
-        while (MASTER_STATE == CONNECTION_START) {Thread.sleep(500)}
+        while (MASTER_STATE == CONNECTION_START) {
+            Thread.sleep(500)
+        }
 
         val connectionClass = new MasterConnectionDoneRequest(null)
         connectionClass.broadcastConnectionDone()
@@ -48,14 +52,18 @@ object Master {
         samplingClass.broadcastSampleStart()
 
         log.info("Master Sampling Barrier 1: SAMPLING_START <-> SAMPLING_PIVOT")
-        while (MASTER_STATE == SAMPLING_START) {Thread.sleep(500)}
+        while (MASTER_STATE == SAMPLING_START) {
+            Thread.sleep(500)
+        }
 
         MasterSortSampledRecords.pivotFromSampledRecords(Service_MasterSampleFirst.sampledRecords)
         val samplingSecondClass = new Request_MasterSampleSecond(null)
         samplingSecondClass.broadcastPivots()
 
         log.info("Master Sampling Barrier 2: SAMPLING_PIVOT <-> SAMPLING_FINISH")
-        while (MASTER_STATE == SAMPLING_PIVOT) {Thread.sleep(500)}
+        while (MASTER_STATE == SAMPLING_PIVOT) {
+            Thread.sleep(500)
+        }
         log.info("Sampling phase connection phase finished")
 
         log.info("Epsilon transition: SAMPLING_FINISH -> SORT_PARTITION_START")
@@ -66,7 +74,9 @@ object Master {
         sortingClass.broadcastSortStart()
 
         log.info("Master Sort/Partition Barrier: SORT_PARTITION_START <-> SORT_PARTITION_FINISH")
-        while (MASTER_STATE == SORT_PARTITION_START) {Thread.sleep(500)}
+        while (MASTER_STATE == SORT_PARTITION_START) {
+            Thread.sleep(500)
+        }
         log.info("Sorting phase finished")
 
         log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")

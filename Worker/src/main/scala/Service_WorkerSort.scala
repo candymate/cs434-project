@@ -1,6 +1,6 @@
 import Worker.WORKER_STATE
-import WorkerState.{SAMPLING_FINISH, SORT_PARTITION_FINISH, SORT_PARTITION_START}
-import protobuf.connect.{Empty, SamplingRequest, SortingRequest, sampleWorkerServiceGrpc, sortWorkerServiceGrpc}
+import WorkerState.{SORT_PARTITION_FINISH, SORT_PARTITION_START}
+import protobuf.connect.Empty
 
 import scala.concurrent.Future
 
