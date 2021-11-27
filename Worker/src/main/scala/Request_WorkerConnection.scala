@@ -3,11 +3,11 @@ import WorkerState._
 import channel.WorkerToMasterChannel
 import io.grpc.{ManagedChannel, StatusRuntimeException}
 import org.slf4j.LoggerFactory
-import protobuf.connect.{ConnectRequest, connectMasterServiceGrpc}
+import protobuf.connect.{ConnectRequest, connectionStartToConnectionFinishMasterGrpc}
 
 import java.net.InetAddress
 
-class WorkerConnection(channelParam: ManagedChannel) {
+class Request_WorkerConnection(channelParam: ManagedChannel) {
     val logger = LoggerFactory.getLogger(getClass)
     var channel = channelParam
 
@@ -16,7 +16,7 @@ class WorkerConnection(channelParam: ManagedChannel) {
         channel = WorkerToMasterChannel.channel
     }
 
-    val blockingStub = connectMasterServiceGrpc.blockingStub(channel)
+    val blockingStub = connectionStartToConnectionFinishMasterGrpc.blockingStub(channel)
 
     def initiateConnection(): Unit = {
         assert(WORKER_STATE == CONNECTION_START)
@@ -27,8 +27,7 @@ class WorkerConnection(channelParam: ManagedChannel) {
 
         try {
             logger.info("connection request sent")
-            val response = blockingStub.workerToMasterConnect(request)
-            WORKER_STATE = CONNECTION_FINISH
+            val response = blockingStub.connectRequestWorkerToMaster(request)
         } catch {
             case e: StatusRuntimeException => {
                 logger.error("connection rpc failed")

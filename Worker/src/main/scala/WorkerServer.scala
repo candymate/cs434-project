@@ -1,32 +1,27 @@
 import Worker.WORKER_STATE
 import WorkerState._
-import channel.WorkerToWorkerChannel
 import config.{ClientInfo, WorkerServerConfig}
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect
-import protobuf.connect.{ConnectResponse, Empty, SamplingRequest, SamplingResponse, ShufflingRequest, ShufflingResponse, SortingRequest, SortingResponse, connectWorkerServiceGrpc, sampleWorkerServiceGrpc, sortWorkerServiceGrpc}
 
-import java.io.File
-import java.util.concurrent.locks.ReentrantLock
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import scala.concurrent.ExecutionContext
 
-class WorkerServer (executionContext: ExecutionContext) { self =>
+class WorkerServer(executionContext: ExecutionContext) {
+    self =>
     val log: Logger = LoggerFactory.getLogger(getClass)
 
     var server: Server = null
     var clientInfo: mutable.Map[Int, ClientInfo] = mutable.Map[Int, ClientInfo]()
 
     def start(): Unit = {
-        assert (WORKER_STATE == CONNECTION_START)
+        assert(WORKER_STATE == SERVER_START)
 
         val serverBuilder = ServerBuilder.forPort(WorkerServerConfig.port)
-        serverBuilder.addService(connectWorkerServiceGrpc.bindService(new Service_WorkerConnection, executionContext))
-        serverBuilder.addService(sampleWorkerServiceGrpc.bindService(new Service_WorkerSample, executionContext))
-        serverBuilder.addService(sortWorkerServiceGrpc.bindService(new Service_WorkerSort, executionContext))
+
+        // add services here
+
+
         server = serverBuilder.build().start()
 
         log.info("Worker Server started, listening on " + WorkerServerConfig.port)
@@ -35,6 +30,8 @@ class WorkerServer (executionContext: ExecutionContext) { self =>
             self.stop()
             System.err.println("*** server shut down")
         }
+
+        WORKER_STATE = SERVER_FINISH
     }
 
     def stop(): Unit = {

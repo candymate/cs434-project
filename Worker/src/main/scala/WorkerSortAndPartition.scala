@@ -13,19 +13,6 @@ object WorkerSortAndPartition {
     val numberOfRecords = 1000000
     var pivotList: List[String] = Nil
 
-    def sendSortResponseToMaster() = {
-        val blockingStub = sortMasterServiceGrpc.blockingStub(WorkerToMasterChannel.channel)
-
-        try {
-            val request = blockingStub.workerToMasterSortResponse(new SortingResponse(true))
-            WORKER_STATE = SHUFFLE_START
-        } catch {
-            case e: StatusRuntimeException => {
-                sys.exit(1)
-            }
-        }
-    }
-
     // all file list
     def sortAndPartitionFromInputFileList(inputPathFileList: Array[File],
                                           outputPathFile: File) = {

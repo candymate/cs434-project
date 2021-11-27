@@ -1,23 +1,20 @@
 import Master.MASTER_STATE
 import MasterState._
-import channel.MasterToWorkerChannel
-import config.ClientInfo
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect.{ConnectRequest, Empty, SamplingResponse, connectMasterServiceGrpc, sampleMasterServiceGrpc}
+import protobuf.connect.{Empty, SamplingResponse, samplingStartToSamplingPivotMasterGrpc}
 
-import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
 import scala.concurrent.Future
 
-object Service_MasterSample {
+object Service_MasterSampleFirst {
     var numberOfClientsThatSampled: Int = 0
     var sampledRecords: List[String] = Nil
 
-    class Service_MasterSample extends sampleMasterServiceGrpc.sampleMasterService {
+    class Service_MasterSample extends samplingStartToSamplingPivotMasterGrpc.samplingStartToSamplingPivotMaster {
         val log: Logger = LoggerFactory.getLogger(getClass)
         private val lock = new ReentrantLock()
 
-        override def workerToMasterSampleResponse(response: SamplingResponse): Future[Empty] = synchronized {
+        override def samplingResult(response: SamplingResponse): Future[Empty] = synchronized {
             assert(MASTER_STATE == SAMPLING_START)
 
             lock.lock()
@@ -26,7 +23,7 @@ object Service_MasterSample {
                 numberOfClientsThatSampled += 1
 
                 if (numberOfClientsThatSampled == Master.numOfRequiredConnections) {
-                    MASTER_STATE = SAMPLING_FINISH
+                    MASTER_STATE = SAMPLING_PIVOT
                 }
             } finally {
                 lock.unlock()

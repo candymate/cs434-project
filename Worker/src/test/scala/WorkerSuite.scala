@@ -40,7 +40,7 @@ class WorkerSuite extends AnyFunSuite {
             .directExecutor()
             .build()
 
-        val workerConnection = new WorkerConnection(channel)
+        val workerConnection = new Request_WorkerConnection(channel)
         workerConnection.initiateConnection()
 
         verify(mockService, times(1))

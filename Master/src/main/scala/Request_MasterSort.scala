@@ -3,7 +3,7 @@ import MasterState._
 import channel.MasterToWorkerChannel
 import io.grpc.ManagedChannel
 import org.slf4j.LoggerFactory
-import protobuf.connect.{SamplingRequest, SortingRequest, sortWorkerServiceGrpc}
+import protobuf.connect.{Empty, sortPartitionStartToSortPartitionFinishWorkerGrpc}
 
 class Request_MasterSort(channelArrayParam: Array[ManagedChannel]) {
     val log = LoggerFactory.getLogger(getClass)
@@ -13,11 +13,11 @@ class Request_MasterSort(channelArrayParam: Array[ManagedChannel]) {
         assert(MASTER_STATE == SORT_PARTITION_START)
 
         def broadcastSortMessage(x: ManagedChannel) = {
-            val blockingStub = sortWorkerServiceGrpc.blockingStub(x)
+            val blockingStub = sortPartitionStartToSortPartitionFinishWorkerGrpc.blockingStub(x)
 
             assert(MasterSortSampledRecords.pivotList != null)
 
-            blockingStub.masterToWorkerSortRequest(new SortingRequest(MasterSortSampledRecords.pivotList))
+            blockingStub.startSorting(new Empty())
         }
 
         if (channelArray == null) {
@@ -25,7 +25,7 @@ class Request_MasterSort(channelArrayParam: Array[ManagedChannel]) {
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastSortMessage)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()
         } else {
-            channelArray foreach(x => broadcastSortMessage(x))
+            channelArray foreach (x => broadcastSortMessage(x))
         }
     }
 }

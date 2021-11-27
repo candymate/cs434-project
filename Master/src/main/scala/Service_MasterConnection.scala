@@ -3,17 +3,17 @@ import MasterState._
 import channel.MasterToWorkerChannel
 import config.ClientInfo
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect.{ConnectRequest, Empty, connectMasterServiceGrpc}
+import protobuf.connect.{ConnectRequest, Empty, connectionStartToConnectionFinishMasterGrpc}
 
 import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
 import scala.concurrent.Future
 
-class Service_MasterConnection extends connectMasterServiceGrpc.connectMasterService {
+class Service_MasterConnection extends connectionStartToConnectionFinishMasterGrpc.connectionStartToConnectionFinishMaster {
     val log: Logger = LoggerFactory.getLogger(getClass)
     private val lock = new ReentrantLock()
 
-    override def workerToMasterConnect(request: ConnectRequest): Future[Empty] = synchronized {
+    override def connectRequestWorkerToMaster(request: ConnectRequest): Future[Empty] = synchronized {
         log.info("connection established with " + request.ip + ":" + request.port)
 
         lock.lock()

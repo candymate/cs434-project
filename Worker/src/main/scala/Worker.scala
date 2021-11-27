@@ -1,11 +1,10 @@
 import WorkerState._
-import channel.WorkerToMasterChannel
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
 
 object Worker {
-    @volatile var WORKER_STATE: WorkerState = CONNECTION_START
+    @volatile var WORKER_STATE: WorkerState = SERVER_START
 
     def main(args: Array[String]): Unit = {
         val log = LoggerFactory.getLogger(getClass)
@@ -16,27 +15,46 @@ object Worker {
         log.info("Start worker side server")
         val workerServer = new WorkerServer(ExecutionContext.global)
         workerServer.start()
+
+        log.info("Worker server barrier: SERVER_START <-> SERVER_FINISH")
+        while (WORKER_STATE == SERVER_START) {Thread.sleep(500)}
         log.info("Successfully turned on worker side server")
 
+        log.info("Epsilon transition: SERVER_FINISH -> CONNECTION_START")
+
         log.info("Connection phase start")
-        val workerConnection = new WorkerConnection(null)
+        val workerConnection = new Request_WorkerConnection(null)
         workerConnection.initiateConnection()
 
-        while (WORKER_STATE == CONNECTION_FINISH) {Thread.sleep(500)}
+        log.info("Worker Connection Phase Barrier: CONNECTION_START <-> CONNECTION_FINISH")
+        while (WORKER_STATE == CONNECTION_START) {Thread.sleep(500)}
         log.info("Connection phase successfully finished")
 
+        log.info("Epsilon transition: CONNECTION_FINISH -> SAMPLING_START")
+        WORKER_STATE = SAMPLING_START
+
         log.info("Sampling phase start")
+        log.info("Worker Sampling Barrier 1: SAMPLING_START <-> SAMPLING_SAMPLE")
         while (WORKER_STATE == SAMPLING_START) {Thread.sleep(500)}
-        WorkerSampling.sendSampledDataToMaster()
-        while (WORKER_STATE == SAMPLING_FINISH) {Thread.sleep(500)}
+
+        Request_WorkerSamplingFirst.sendSampledDataToMaster()
+
+        log.info("Worker Sampling Barrier 2: SAMPLING_SAMPLE <-> SAMPLING_FINISH")
+        while (WORKER_STATE == SAMPLING_SAMPLE) {Thread.sleep(500)}
         log.info("Sampling phase successfully finished")
 
+        log.info("Epsilon transition: SAMPLING_FINISH -> SORT_PARTITION_START")
+        WORKER_STATE = SORT_PARTITION_START
+
         log.info("Sorting phase start")
+        log.info("Worker Sort/Partition Barrier: SORT_PARTITION_START <-> SORT_PARTITION_FINISH")
         while (WORKER_STATE == SORT_PARTITION_START) {Thread.sleep(500)}
         WorkerSortAndPartition.sortAndPartitionFromInputFileList(WorkerArgumentHandler.inputFileArray,
             WorkerArgumentHandler.outputFile)
-        WorkerSortAndPartition.sendSortResponseToMaster()
-        while (WORKER_STATE == SORT_PARTITION_FINISH) {Thread.sleep(500)}
-        log.info("Sorting phase stop")
+        Request_WorkerSort.sendSortFinished()
+        log.info("Sorting phase finished")
+
+        log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")
+        WORKER_STATE = MERGE_START
     }
 }

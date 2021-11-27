@@ -2,34 +2,55 @@ syntax = "proto3";
 
 package protobuf;
 
-// worker -> master (initiate connection )
-service connectMasterService {
-  rpc workerToMasterConnect(ConnectRequest) returns (Empty) {}
+service connectionStartToConnectionFinishMaster {
+  rpc connectRequestWorkerToMaster(ConnectRequest) returns (Empty) {}
 }
 
-// master -> worker (indicate connection work is finished)
-service connectWorkerService {
-  rpc masterToWorkerConnectResponse(ConnectResponse) returns (Empty) {}
+service samplingStartToSamplingPivotMaster {
+  rpc samplingResult(SamplingResponse) returns (Empty) {}
 }
 
-// worker -> master (indicate that sampling work is finished)
-service sampleMasterService {
-  rpc workerToMasterSampleResponse(SamplingResponse) returns (Empty) {}
+service samplingPivotToSamplingFinishMaster {
+  rpc samplePartitionFinished(Empty) returns (Empty) {}
 }
 
-// master -> worker (initiate sampling)
-service sampleWorkerService {
-  rpc masterToWorkerSampleRequest(SamplingRequest) returns (Empty) {}
+service sortPartitionStartToSortPartitionFinishMaster {
+  rpc finishedSorting(Empty) returns (Empty) {}
 }
 
-// worker -> master (indicate that sorting work is finished)
-service sortMasterService {
-  rpc workerToMasterSortResponse(SortingResponse) returns (Empty) {}
+service shuffleStartToShuffleFinishMaster {
+  rpc finishedShuffling(Empty) returns (Empty) {}
 }
 
-// master -> worker (initiate sorting)
-service sortWorkerService {
-  rpc masterToWorkerSortRequest(SortingRequest) returns (Empty) {}
+service mergeStartToMergeFinishMaster {
+  rpc finishedMerging(Empty) returns (Empty) {}
+}
+
+service connectionStartToConnectionFinishWorker {
+  rpc broadCastClientInfo(ConnectResponse) returns (Empty) {}
+}
+
+service samplingStartToSamplingSampleWorker {
+  rpc startSampling(Empty) returns (Empty) {}
+}
+
+service samplingSampleToSamplingFinishWorker {
+  rpc pivotResult(PivotResult) returns (Empty) {}
+}
+
+service sortPartitionStartToSortPartitionFinishWorker {
+  rpc startSorting(Empty) returns (Empty) {}
+}
+
+service shuffleStartToShuffleFinishWorker {
+  rpc startShuffling(Empty) returns (Empty) {}
+}
+
+service mergeStartToMergeFinishWorker {
+  rpc startMerging(Empty) returns (Empty) {}
+}
+
+message Empty {
 }
 
 message ConnectRequest {
@@ -42,29 +63,10 @@ message ConnectResponse {
   repeated int32 portList = 2;
 }
 
-message Empty {
-}
-
-message SamplingRequest {
-
-}
-
 message SamplingResponse {
   repeated string sampledData = 1;
 }
 
-message SortingRequest {
-  repeated string pivot = 1;
-}
-
-message SortingResponse {
-  bool success = 1;
-}
-
-message ShufflingRequest {
-
-}
-
-message ShufflingResponse {
-
+message PivotResult {
+  repeated string pivotList = 1;
 }

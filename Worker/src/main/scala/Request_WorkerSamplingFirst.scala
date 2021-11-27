@@ -2,15 +2,13 @@ import Worker.WORKER_STATE
 import WorkerState._
 import channel.WorkerToMasterChannel
 import io.grpc.StatusRuntimeException
-import protobuf.connect.{Empty, SamplingRequest, SamplingResponse, sampleMasterServiceGrpc, sampleWorkerServiceGrpc}
+import protobuf.connect.{SamplingResponse, samplingStartToSamplingPivotMasterGrpc}
 
 import java.io.File
-import java.util.concurrent.locks.ReentrantLock
-import scala.concurrent.Future
-import scala.io.{BufferedSource, Source}
-import scala.io.Source.{fromBytes, fromFile}
+import scala.io.BufferedSource
+import scala.io.Source.fromFile
 
-object WorkerSampling {
+object Request_WorkerSamplingFirst {
     val numberOfRecords = 100000
 
     def sampleFromFile(inputFilePath: File): List[String] = {
@@ -30,16 +28,16 @@ object WorkerSampling {
     }
 
     def sendSampledDataToMaster() = {
+        assert(WORKER_STATE == SAMPLING_SAMPLE)
         val sampledData = sampleFromFile(WorkerArgumentHandler.inputFileArray(0))
         // WorkerToMasterChannel.openWorkerToMasterChannel()
 
-        val blockingStub = sampleMasterServiceGrpc.blockingStub(WorkerToMasterChannel.channel)
+        val blockingStub = samplingStartToSamplingPivotMasterGrpc.blockingStub(WorkerToMasterChannel.channel)
 
         try {
-            val request = blockingStub.workerToMasterSampleResponse(new SamplingResponse(
+            val request = blockingStub.samplingResult(new SamplingResponse(
                 sampledData
             ))
-            WORKER_STATE = SORT_PARTITION_START
         } catch {
             case e: StatusRuntimeException => {
                 sys.exit(1)
