@@ -2,7 +2,7 @@ import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import org.junit.runner.RunWith
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect.{SamplingRequest, SamplingResponse, restPhaseServiceGrpc}
+import protobuf.connect.{SamplingRequest, SamplingResponse}
 
 import java.io.File
 import java.util.concurrent.{ExecutorService, Executors}

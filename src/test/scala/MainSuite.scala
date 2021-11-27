@@ -17,7 +17,7 @@ class MainSuite extends AnyFunSuite {
     implicit val threadPool: ExecutorService = Executors.newFixedThreadPool(8)
     implicit val executorContext: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
-    test("Connection test") {
+    /*test("Connection test") {
         val numberOfConnection = 5
         val clientConnection: List[Future[Unit]] = Nil
 
@@ -133,5 +133,5 @@ class MainSuite extends AnyFunSuite {
         assert(outputFile03 == 68)
         assert(outputFile13 == 1)
         assert(outputFile23 == 131)
-    }
+    }*/
 }

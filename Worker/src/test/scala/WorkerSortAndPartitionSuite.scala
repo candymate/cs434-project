@@ -22,7 +22,7 @@ class WorkerSortAndPartitionSuite extends AnyFunSuite {
         assert(200 == file1Size)
     }
 
-    test("sortAndPartitionFromInputFileList test") {
+    /*test("sortAndPartitionFromInputFileList test") {
         val testDirectory = new File("Worker//data//sortA1")
         val testDirectory2 = new File("Worker//data//sortA2")
         val testDirectory3 = new File("Worker//data//sortA3")
@@ -41,5 +41,5 @@ class WorkerSortAndPartitionSuite extends AnyFunSuite {
         assert(200 == file1Size1)
         assert(200 == file2Size1)
         assert(200 == file3Size1)
-    }
+    }*/
 }
