@@ -20,7 +20,7 @@ class WorkerServer(executionContext: ExecutionContext) {
     def start(): Unit = {
         assert(WORKER_STATE == SERVER_START)
 
-        val serverBuilder = ServerBuilder.forPort(WorkerServerConfig.port)
+        val serverBuilder = ServerBuilder.forPort(WorkerArgumentHandler.optionalWorkerServerPort)
 
         // add services here
         serverBuilder.addService(connectionStartToConnectionFinishWorkerGrpc.bindService(new Service_WorkerConnection, executionContext))
@@ -28,10 +28,11 @@ class WorkerServer(executionContext: ExecutionContext) {
         serverBuilder.addService(samplingSampleToSamplingFinishWorker.bindService(new Service_WorkerSampleSecond, executionContext))
         serverBuilder.addService(sortPartitionStartToSortPartitionFinishWorkerGrpc.bindService(new Service_WorkerSort, executionContext))
         serverBuilder.addService(shuffleStartToShuffleFinishWorkerGrpc.bindService(new Service_WorkerShuffle, executionContext))
+        serverBuilder.addService(shuffleInterWorkerGrpc.bindService(new WorkerInterService, executionContext))
 
         server = serverBuilder.build().start()
 
-        log.info("Worker Server started, listening on " + WorkerServerConfig.port)
+        log.info("Worker Server started, listening on " + WorkerArgumentHandler.optionalWorkerServerPort)
         sys.addShutdownHook {
             System.err.println("*** shutting down gRPC server since JVM is shutting down")
             self.stop()

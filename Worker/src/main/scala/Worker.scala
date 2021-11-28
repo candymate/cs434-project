@@ -78,8 +78,7 @@ object Worker {
         while (WORKER_STATE == SHUFFLE_START) {
             Thread.sleep(500)
         }
-        // WorkerSortAndPartition.sortAndPartitionFromInputFileList(WorkerArgumentHandler.inputFileArray,
-        //     WorkerArgumentHandler.outputFile)
+        WorkerShuffle.shuffle()
         Request_WorkerShuffle.sendShuffleFinished()
         log.info("Shuffling phase finished")
 

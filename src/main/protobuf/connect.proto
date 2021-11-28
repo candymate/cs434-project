@@ -70,3 +70,22 @@ message SamplingResponse {
 message PivotResult {
   repeated string pivotList = 1;
 }
+
+message ShufflingInterRequest {
+  enum ReqType {
+    NEXT = 0;
+    RETRY = 1;
+    OK = 2;
+  }
+  ReqType req = 1;
+  int32 id = 2;
+}
+
+message ShufflingInterResponse {
+  bool status = 1;
+  string fileContent = 2;
+}
+
+service shuffleInterWorker {
+  rpc interShuffling(ShufflingInterRequest) returns (ShufflingInterResponse) {}
+}
