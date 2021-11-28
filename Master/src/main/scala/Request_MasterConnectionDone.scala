@@ -10,15 +10,14 @@ class Request_MasterConnectionDone(channelArrayParam: Array[ManagedChannel]) {
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
     def broadcastConnectionDone() = {
-        assert(MASTER_STATE == CONNECTION_FINISH)
-
         def broadcastConnectionResponse(x: Channel) = {
             val blockingStub = connectionStartToConnectionFinishWorkerGrpc.blockingStub(x)
             blockingStub.broadCastClientInfo(new ConnectResponse(
                 MasterToWorkerChannel.ipList, MasterToWorkerChannel.portList))
         }
 
-        if (channelArray == null) {
+        if (channelArray.size == 0) {
+            assert(MASTER_STATE == CONNECTION_FINISH)
             MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastConnectionResponse)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()

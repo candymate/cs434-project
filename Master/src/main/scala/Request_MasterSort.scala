@@ -10,8 +10,6 @@ class Request_MasterSort(channelArrayParam: Array[ManagedChannel]) {
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
     def broadcastSortStart() = {
-        assert(MASTER_STATE == SORT_PARTITION_START)
-
         def broadcastSortMessage(x: ManagedChannel) = {
             val blockingStub = sortPartitionStartToSortPartitionFinishWorkerGrpc.blockingStub(x)
 
@@ -21,6 +19,7 @@ class Request_MasterSort(channelArrayParam: Array[ManagedChannel]) {
         }
 
         if (channelArray.size == 0) {
+            assert(MASTER_STATE == SORT_PARTITION_START)
             // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastSortMessage)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()

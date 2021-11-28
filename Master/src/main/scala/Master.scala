@@ -41,7 +41,7 @@ object Master {
             Thread.sleep(500)
         }
 
-        val connectionClass = new Request_MasterConnectionDone(null)
+        val connectionClass = new Request_MasterConnectionDone(Array())
         connectionClass.broadcastConnectionDone()
         log.info("Connection phase successfully finished")
 
@@ -50,7 +50,7 @@ object Master {
         Thread.sleep(5000)
 
         log.info("Sampling phase start")
-        val samplingClass = new Request_MasterSampleFirst(null)
+        val samplingClass = new Request_MasterSampleFirst(Array())
         samplingClass.broadcastSampleStart()
 
         log.info("Master Sampling Barrier 1: SAMPLING_START <-> SAMPLING_PIVOT")
@@ -59,7 +59,7 @@ object Master {
         }
 
         MasterSortSampledRecords.pivotFromSampledRecords(Service_MasterSampleFirst.sampledRecords)
-        val samplingSecondClass = new Request_MasterSampleSecond(null)
+        val samplingSecondClass = new Request_MasterSampleSecond(Array())
         samplingSecondClass.broadcastPivots()
 
         log.info("Master Sampling Barrier 2: SAMPLING_PIVOT <-> SAMPLING_FINISH")
@@ -73,7 +73,7 @@ object Master {
         Thread.sleep(5000)
 
         log.info("Sorting phase start")
-        val sortingClass = new Request_MasterSort(null)
+        val sortingClass = new Request_MasterSort(Array())
         sortingClass.broadcastSortStart()
 
         log.info("Master Sort/Partition Barrier: SORT_PARTITION_START <-> SORT_PARTITION_FINISH")

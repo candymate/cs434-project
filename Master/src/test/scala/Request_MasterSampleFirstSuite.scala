@@ -1,12 +1,12 @@
 import MasterState._
 import io.grpc.Server
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
-import org.scalatest.funsuite.AnyFunSuite
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar.{mock, times, verify, when}
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect.{Empty, connectionStartToConnectionFinishWorkerGrpc, samplingStartToSamplingSampleWorkerGrpc}
+import protobuf.connect.{Empty, samplingStartToSamplingSampleWorkerGrpc}
 
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,6 +22,8 @@ class MasterSampleFirstSuite extends AnyFunSuite {
 
         when(mockService.startSampling(any(classOf[Empty]))).thenReturn(Future.successful(Empty()))
 
+        Master.MASTER_STATE = SAMPLING_START
+
         val server: Server = InProcessServerBuilder
             .forName(serverName)
             .directExecutor()
@@ -33,8 +35,6 @@ class MasterSampleFirstSuite extends AnyFunSuite {
             .forName(serverName)
             .directExecutor()
             .build()
-
-        Master.MASTER_STATE = SAMPLING_START
 
         val channelArray = Array(channel)
 

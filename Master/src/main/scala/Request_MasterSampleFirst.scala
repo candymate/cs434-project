@@ -10,14 +10,13 @@ class Request_MasterSampleFirst(channelArrayParam: Array[ManagedChannel]) {
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
     def broadcastSampleStart() = {
-        assert(MASTER_STATE == SAMPLING_START)
-
         def broadcastSampleMessage(x: ManagedChannel) = {
             val blockingStub = samplingStartToSamplingSampleWorkerGrpc.blockingStub(x)
             blockingStub.startSampling(Empty())
         }
 
         if (channelArray.size == 0) {
+            assert(MASTER_STATE == SAMPLING_START)
             // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastSampleMessage)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()

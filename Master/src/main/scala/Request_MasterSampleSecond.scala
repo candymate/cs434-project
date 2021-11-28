@@ -10,14 +10,13 @@ class Request_MasterSampleSecond(channelArrayParam: Array[ManagedChannel]) {
     var channelArray: Array[ManagedChannel] = channelArrayParam
 
     def broadcastPivots() = {
-        assert(MASTER_STATE == SAMPLING_PIVOT)
-
         def broadcastPivotMessages(x: ManagedChannel) = {
             val blockingStub = samplingSampleToSamplingFinishWorkerGrpc.blockingStub(x)
             blockingStub.pivotResult(new PivotResult(MasterSortSampledRecords.pivotList))
         }
 
         if (channelArray.size == 0) {
+            assert(MASTER_STATE == SAMPLING_PIVOT)
             // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastPivotMessages)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()
