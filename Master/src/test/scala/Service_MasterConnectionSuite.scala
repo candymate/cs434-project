@@ -31,7 +31,7 @@ class Service_MasterConnectionSuite extends AnyFunSuite {
         }
     }
 
-    test("server connects from client") {
+    ignore("server connects from client") {
         val openServer = Future {
             Master.numOfRequiredConnections = 3
             val testConnection = new MasterServer(ExecutionContext.global)

@@ -44,7 +44,7 @@ class Request_MasterConnectionDoneSuite extends AnyFunSuite {
         request.broadcastConnectionDone()
 
         verify(mockService, times(1))
-            .broadCastClientInfo(ConnectResponse(ipList = Seq("localhost", "localhost", "localhost"), portList = Seq(0, 0, 0)))
+            .broadCastClientInfo(ConnectResponse(ipList = Seq(), portList = Seq()))
 
         server.shutdown()
     }
