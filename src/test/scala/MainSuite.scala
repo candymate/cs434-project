@@ -26,7 +26,7 @@ class MainSuite extends AnyFunSuite {
         channel = managedChannelBuilder.build()
 
         val openServer = Future {
-            val testMaster = new MasterConnection(numberOfConnection, executorContext)
+            val testMaster = new MasterServer(executorContext)
             testMaster.start()
 
             assert(testMaster != null)

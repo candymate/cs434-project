@@ -17,7 +17,7 @@ class Request_MasterSampleSecond(channelArrayParam: Array[ManagedChannel]) {
             blockingStub.pivotResult(new PivotResult(MasterSortSampledRecords.pivotList))
         }
 
-        if (channelArray == null) {
+        if (channelArray.size == 0) {
             // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastPivotMessages)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()

@@ -1,6 +1,3 @@
-import Master.MASTER_STATE
-import MasterState._
-
 object MasterSortSampledRecords {
     var pivotIndex: List[Int] = Nil
     var pivotList: List[String] = Nil

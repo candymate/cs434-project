@@ -41,7 +41,7 @@ object Master {
             Thread.sleep(500)
         }
 
-        val connectionClass = new MasterConnectionDoneRequest(null)
+        val connectionClass = new Request_MasterConnectionDone(null)
         connectionClass.broadcastConnectionDone()
         log.info("Connection phase successfully finished")
 
@@ -82,13 +82,12 @@ object Master {
         }
         log.info("Sorting phase finished")
 
-        log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")
-        MASTER_STATE = MERGE_START
+        log.info("Epsilon transition: SORT_PARTITION_FINISH -> SHUFFLE_START")
+        MASTER_STATE = SHUFFLE_START
         Thread.sleep(5000)
 
         // merging phase (server not required in master)
 
-        // checking (server required in master)
 
     }
 }

@@ -17,7 +17,7 @@ class Request_MasterSampleFirst(channelArrayParam: Array[ManagedChannel]) {
             blockingStub.startSampling(Empty())
         }
 
-        if (channelArray == null) {
+        if (channelArray.size == 0) {
             // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastSampleMessage)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()

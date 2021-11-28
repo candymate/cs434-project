@@ -20,7 +20,7 @@ class Request_MasterSort(channelArrayParam: Array[ManagedChannel]) {
             blockingStub.startSorting(new Empty())
         }
 
-        if (channelArray == null) {
+        if (channelArray.size == 0) {
             // MasterToWorkerChannel.openMasterToWorkerChannelArray()
             MasterToWorkerChannel.sendMessageToEveryClient(broadcastSortMessage)
             // MasterToWorkerChannel.closeMasterToWorkerChannelArray()
