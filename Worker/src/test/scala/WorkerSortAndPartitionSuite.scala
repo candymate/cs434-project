@@ -8,7 +8,7 @@ import scala.io.Source.fromFile
 @RunWith(classOf[JUnitRunner])
 class WorkerSortAndPartitionSuite extends AnyFunSuite {
 
-    test("sortAndPartitionFromInputFile test") {
+    ignore("sortAndPartitionFromInputFile test") {
         val testDirectory = new File("Worker//data//sortA1")
         val testOutputDirectory = new File("Worker//output2")
 
