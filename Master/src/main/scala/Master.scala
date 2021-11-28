@@ -86,6 +86,20 @@ object Master {
         MASTER_STATE = SHUFFLE_START
         Thread.sleep(5000)
 
+        log.info("Shuffling phase start")
+        val shufflingClass = new Request_MasterShuffle(Array())
+        shufflingClass.broadcastShuffleStart()
+
+        log.info("Master Shuffle Barrier: SHUFFLE_START <-> SHUFFLE_FINISH")
+        while (MASTER_STATE == SHUFFLE_START) {
+            Thread.sleep(500)
+        }
+        log.info("Shuffling phase finished")
+
+        log.info("Epsilon transition: SHUFFLE_FINISH -> MERGE_START")
+        MASTER_STATE = MERGE_START
+        Thread.sleep(5000)
+
         // merging phase (server not required in master)
 
 

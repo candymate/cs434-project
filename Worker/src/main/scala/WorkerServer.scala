@@ -5,7 +5,7 @@ import config.{ClientInfo, WorkerServerConfig}
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
 import protobuf.connect.samplingSampleToSamplingFinishWorkerGrpc.samplingSampleToSamplingFinishWorker
-import protobuf.connect.{connectionStartToConnectionFinishWorkerGrpc, samplingStartToSamplingSampleWorkerGrpc, sortPartitionStartToSortPartitionFinishWorkerGrpc}
+import protobuf.connect._
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -27,6 +27,7 @@ class WorkerServer(executionContext: ExecutionContext) {
         serverBuilder.addService(samplingStartToSamplingSampleWorkerGrpc.bindService(new Service_WorkerSampleFirst, executionContext))
         serverBuilder.addService(samplingSampleToSamplingFinishWorker.bindService(new Service_WorkerSampleSecond, executionContext))
         serverBuilder.addService(sortPartitionStartToSortPartitionFinishWorkerGrpc.bindService(new Service_WorkerSort, executionContext))
+        serverBuilder.addService(shuffleStartToShuffleFinishWorkerGrpc.bindService(new Service_WorkerShuffle, executionContext))
 
         server = serverBuilder.build().start()
 

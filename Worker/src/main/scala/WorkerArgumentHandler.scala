@@ -32,7 +32,7 @@ object WorkerArgumentHandler {
         } else {
             log.info("Optional port for worker server is included in args")
             optionalWorkerServerPort = args.last.toInt
-            outputFile = new File(args(args.length - 1))
+            outputFile = new File(args(args.length - 2))
         }
     }
 

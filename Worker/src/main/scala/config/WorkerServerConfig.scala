@@ -1,5 +1,5 @@
 package config
 
 object WorkerServerConfig {
-    val port: Int = 8000
+    val port: Int = 8001
 }
