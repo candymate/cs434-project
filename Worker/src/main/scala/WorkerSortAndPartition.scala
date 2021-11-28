@@ -1,3 +1,6 @@
+import Worker.WORKER_STATE
+import WorkerState._
+
 import java.io.{BufferedWriter, File, FileWriter}
 import scala.annotation.tailrec
 import scala.io.Source.fromFile
@@ -5,13 +8,16 @@ import scala.io.Source.fromFile
 object WorkerSortAndPartition {
     var fileNamePartition = 0
     val numberOfRecords = 1000000
+    var pivotList: List[String] = Nil
 
     // all file list
     def sortAndPartitionFromInputFileList(inputPathFileList: Array[File],
-                                          outputPathFile: File,
-                                          pivotMap: List[String]) = {
+                                          outputPathFile: File) = {
+        assert(WORKER_STATE == SORT_PARTITION_FINISH)
+        assert(pivotList.size != 0)
+
         inputPathFileList foreach {
-            x => sortAndPartitionFromInputFile(x, outputPathFile, pivotMap)
+            x => sortAndPartitionFromInputFile(x, outputPathFile, pivotList)
         }
     }
 
@@ -27,9 +33,9 @@ object WorkerSortAndPartition {
 
     @tailrec
     def makeSortedPartition(sortedDataFromFile: List[String], pivotMap: List[String],
-                           outputPathFile: String, targetMachine: Int): Any = {
+                            outputPathFile: String, targetMachine: Int): Any = {
         pivotMap match {
-            case head::tail => {
+            case head :: tail => {
                 if (tail.size != 0) {
                     val (firstList, restList) = sortedDataFromFile.partition(_.slice(0, 10) < tail.head)
                     writeToFile(outputPathFile, firstList, targetMachine)
@@ -52,7 +58,7 @@ object WorkerSortAndPartition {
     }
 
     private def generateName(targetWorker: Int): String = {
-        val fileName = "unshuffled." + targetWorker + "." +  fileNamePartition
+        val fileName = "unshuffled." + targetWorker + "." + fileNamePartition
         fileName
     }
 }

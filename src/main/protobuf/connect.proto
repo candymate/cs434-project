@@ -2,43 +2,71 @@ syntax = "proto3";
 
 package protobuf;
 
-service connectService {
-  rpc connect(ConnectRequest) returns (Empty) {}
+service connectionStartToConnectionFinishMaster {
+  rpc connectRequestWorkerToMaster(ConnectRequest) returns (Empty) {}
 }
 
-service restPhaseService {
-  rpc sample(SamplingRequest) returns (SamplingResponse) {}
-  rpc sort(SortingRequest) returns (SortingResponse) {}
-  rpc shuffleStart(ShufflingRequest) returns (ShufflingResponse) {}
+service samplingStartToSamplingPivotMaster {
+  rpc samplingResult(SamplingResponse) returns (Empty) {}
 }
 
-message ConnectRequest {
-  string ip = 1;
+service samplingPivotToSamplingFinishMaster {
+  rpc samplePartitionFinished(Empty) returns (Empty) {}
+}
+
+service sortPartitionStartToSortPartitionFinishMaster {
+  rpc finishedSorting(Empty) returns (Empty) {}
+}
+
+service shuffleStartToShuffleFinishMaster {
+  rpc finishedShuffling(Empty) returns (Empty) {}
+}
+
+service mergeStartToMergeFinishMaster {
+  rpc finishedMerging(Empty) returns (Empty) {}
+}
+
+service connectionStartToConnectionFinishWorker {
+  rpc broadCastClientInfo(ConnectResponse) returns (Empty) {}
+}
+
+service samplingStartToSamplingSampleWorker {
+  rpc startSampling(Empty) returns (Empty) {}
+}
+
+service samplingSampleToSamplingFinishWorker {
+  rpc pivotResult(PivotResult) returns (Empty) {}
+}
+
+service sortPartitionStartToSortPartitionFinishWorker {
+  rpc startSorting(Empty) returns (Empty) {}
+}
+
+service shuffleStartToShuffleFinishWorker {
+  rpc startShuffling(Empty) returns (Empty) {}
+}
+
+service mergeStartToMergeFinishWorker {
+  rpc startMerging(Empty) returns (Empty) {}
 }
 
 message Empty {
 }
 
-message SamplingRequest {
-  map<int32, string> ipList = 1;
+message ConnectRequest {
+  string ip = 1;
+  int32 port = 2;
+}
+
+message ConnectResponse {
+  repeated string ipList = 1;
+  repeated int32 portList = 2;
 }
 
 message SamplingResponse {
   repeated string sampledData = 1;
 }
 
-message SortingRequest {
-  repeated string pivot = 1;
-}
-
-message SortingResponse {
-  bool success = 1;
-}
-
-message ShufflingRequest {
-
-}
-
-message ShufflingResponse {
-
+message PivotResult {
+  repeated string pivotList = 1;
 }

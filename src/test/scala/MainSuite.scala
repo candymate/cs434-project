@@ -1,3 +1,4 @@
+import channel.WorkerToMasterChannel.{channel, ip, port}
 import config.{ClientInfo, MasterConfig}
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import org.scalatest.funsuite.AnyFunSuite
@@ -16,17 +17,25 @@ class MainSuite extends AnyFunSuite {
     implicit val threadPool: ExecutorService = Executors.newFixedThreadPool(8)
     implicit val executorContext: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
-    test("Connection test") {
+    /*test("Connection test") {
         val numberOfConnection = 5
         val clientConnection: List[Future[Unit]] = Nil
 
+        val managedChannelBuilder = ManagedChannelBuilder.forAddress("localhost", 9000)
+        managedChannelBuilder.usePlaintext()
+        channel = managedChannelBuilder.build()
+
         val openServer = Future {
-            val testMaster = new MasterConnection(numberOfConnection, executorContext)
+            val testMaster = new MasterServer(executorContext)
+            testMaster.start()
 
             assert(testMaster != null)
 
             Thread.sleep(500)
 
+            testMaster.stop()
+
+            Thread.sleep(500)
             assert(testMaster.server.isTerminated)
         }
 
@@ -34,9 +43,9 @@ class MainSuite extends AnyFunSuite {
             i <- 0 until numberOfConnection
         ) yield {
             clientConnection :+ Future {
-                val testClient = new WorkerConnection(new MasterConfig("127.0.0.1", 9000), null)
+                val testClient = new WorkerConnection(channel)
 
-                testClient.connect()
+                testClient.initiateConnection()
             }
         }
 
@@ -124,5 +133,5 @@ class MainSuite extends AnyFunSuite {
         assert(outputFile03 == 68)
         assert(outputFile13 == 1)
         assert(outputFile23 == 131)
-    }
+    }*/
 }

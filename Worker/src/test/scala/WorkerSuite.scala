@@ -1,18 +1,16 @@
-import config.MasterConfig
+import WorkerState._
+import channel.WorkerToMasterChannel
 import io.grpc.Server
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
-import org.scalatest.funsuite.AnyFunSuite
 import org.junit.runner.RunWith
-import org.mockito.AdditionalAnswers.delegatesTo
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.IdiomaticMockito.StubbingOps
 import org.mockito.MockitoSugar.{mock, times, verify, when}
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
-import protobuf.connect
-import protobuf.connect.{ConnectRequest, Empty, connectServiceGrpc}
-import protobuf.connect.connectServiceGrpc.{bindService, connectService}
+import protobuf.connect.{ConnectRequest, Empty, SamplingResponse, connectionStartToConnectionFinishMasterGrpc, samplingPivotToSamplingFinishMasterGrpc, samplingStartToSamplingPivotMasterGrpc, sortPartitionStartToSortPartitionFinishMasterGrpc}
 
+import java.io.File
 import java.net.InetAddress
 import java.util.concurrent.{ExecutorService, Executors}
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,16 +20,17 @@ class WorkerSuite extends AnyFunSuite {
     implicit val threadPool: ExecutorService = Executors.newFixedThreadPool(8)
     implicit val executorContext: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
-    test("Client unit test") {
+    test("Initiate Connection test") {
         val serverName = InProcessServerBuilder.generateName()
-        val mockService = mock[connectServiceGrpc.connectService]
+        val mockService = mock[connectionStartToConnectionFinishMasterGrpc.connectionStartToConnectionFinishMaster]
 
-        when(mockService.connect(any(classOf[ConnectRequest]))).thenReturn(Future.successful(Empty()))
+        when(mockService.connectRequestWorkerToMaster(any(classOf[ConnectRequest])))
+            .thenReturn(Future.successful(new Empty()))
 
         val server: Server = InProcessServerBuilder
             .forName(serverName)
             .directExecutor()
-            .addService(connectServiceGrpc.bindService(mockService, executorContext))
+            .addService(connectionStartToConnectionFinishMasterGrpc.bindService(mockService, executorContext))
             .build()
             .start()
 
@@ -40,13 +39,114 @@ class WorkerSuite extends AnyFunSuite {
             .directExecutor()
             .build()
 
-        new WorkerConnection(new MasterConfig("localhost", 9000), channel)
+        Worker.WORKER_STATE = CONNECTION_START
+
+        val request = new Request_WorkerConnection(channel)
+        request.initiateConnection()
 
         verify(mockService, times(1))
-            .connect(ArgumentMatchers.eq(ConnectRequest(InetAddress.getLocalHost().getHostAddress())))
+            .connectRequestWorkerToMaster(ArgumentMatchers.eq(ConnectRequest(InetAddress.getLocalHost().getHostAddress().toString, 8000)))
 
         server.shutdown()
+        channel.shutdown()
+        Thread.sleep(500)
+    }
 
+    test("Send sampling result to master") {
+        val serverName = InProcessServerBuilder.generateName()
+        val mockService = mock[samplingStartToSamplingPivotMasterGrpc.samplingStartToSamplingPivotMaster]
+
+        when(mockService.samplingResult(any(classOf[SamplingResponse])))
+            .thenReturn(Future.successful(new Empty()))
+
+        val server: Server = InProcessServerBuilder
+            .forName(serverName)
+            .directExecutor()
+            .addService(samplingStartToSamplingPivotMasterGrpc.bindService(mockService, executorContext))
+            .build()
+            .start()
+
+        val channel = InProcessChannelBuilder
+            .forName(serverName)
+            .directExecutor()
+            .build()
+
+        WorkerArgumentHandler.inputFileArray = Array(new File("Worker//data//sortA1"))
+        Worker.WORKER_STATE = SAMPLING_SAMPLE
+        WorkerToMasterChannel.channel = channel
+
+        val request = Request_WorkerSamplingFirst.sendSampledDataToMaster()
+
+        verify(mockService, times(1))
+            .samplingResult(ArgumentMatchers.eq(SamplingResponse(
+                Request_WorkerSamplingFirst.sampleFromFile(new File("Worker//data//sortA1")))))
+
+        server.shutdown()
+        channel.shutdown()
+        Thread.sleep(500)
+    }
+
+    test("Send sampling is finished to master") {
+        val serverName = InProcessServerBuilder.generateName()
+        val mockService = mock[samplingPivotToSamplingFinishMasterGrpc.samplingPivotToSamplingFinishMaster]
+
+        when(mockService.samplePartitionFinished(any(classOf[Empty])))
+            .thenReturn(Future.successful(new Empty()))
+
+        val server: Server = InProcessServerBuilder
+            .forName(serverName)
+            .directExecutor()
+            .addService(samplingPivotToSamplingFinishMasterGrpc.bindService(mockService, executorContext))
+            .build()
+            .start()
+
+        val channel = InProcessChannelBuilder
+            .forName(serverName)
+            .directExecutor()
+            .build()
+
+        Worker.WORKER_STATE = SAMPLING_FINISH
+        WorkerToMasterChannel.channel = channel
+
+        val request = Request_WorkerSamplingSecond.sendSampledDataToMaster()
+
+        verify(mockService, times(1))
+            .samplePartitionFinished(ArgumentMatchers.eq(Empty()))
+
+        server.shutdown()
+        channel.shutdown()
+        Thread.sleep(500)
+    }
+
+    test("Send sorting is finished to master") {
+        val serverName = InProcessServerBuilder.generateName()
+        val mockService = mock[sortPartitionStartToSortPartitionFinishMasterGrpc.sortPartitionStartToSortPartitionFinishMaster]
+
+        when(mockService.finishedSorting(any(classOf[Empty])))
+            .thenReturn(Future.successful(new Empty()))
+
+        val server: Server = InProcessServerBuilder
+            .forName(serverName)
+            .directExecutor()
+            .addService(sortPartitionStartToSortPartitionFinishMasterGrpc.bindService(mockService, executorContext))
+            .build()
+            .start()
+
+        val channel = InProcessChannelBuilder
+            .forName(serverName)
+            .directExecutor()
+            .build()
+
+        Worker.WORKER_STATE = SORT_PARTITION_FINISH
+        WorkerToMasterChannel.channel = channel
+
+        Request_WorkerSort.sendSortFinished()
+
+        verify(mockService, times(1))
+            .finishedSorting(ArgumentMatchers.eq(Empty()))
+
+        server.shutdown()
+        channel.shutdown()
         Thread.sleep(500)
     }
 }

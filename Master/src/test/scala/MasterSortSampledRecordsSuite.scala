@@ -7,18 +7,15 @@ import org.scalatestplus.junit.JUnitRunner
 class MasterSortSampledRecordsSuite extends AnyFunSuite {
     test("Test sorting function") {
         val stringList = List("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m").reverse
-        val requiredConnections = 3
+        Master.numOfRequiredConnections = 3
 
-        val sampledSortedRecords = new MasterSortSampledRecords(stringList, requiredConnections)
+        MasterSortSampledRecords.pivotFromSampledRecords(stringList)
 
-        val sortedStringList = sampledSortedRecords.sortedSampledRecords
-        val pivotIndex = sampledSortedRecords.pivotList
+        assert(MasterSortSampledRecords.pivotList(0).equals("a"))
+        assert(MasterSortSampledRecords.pivotList(1).equals("e"))
 
-        assert(sortedStringList(0).equals("a"))
-        assert(sortedStringList(12).equals("m"))
-
-        assert(pivotIndex(0) == "a")
-        assert(pivotIndex(1) == "e")
-        assert(pivotIndex(2) == "i")
+        assert(MasterSortSampledRecords.pivotIndex(0) == 0)
+        assert(MasterSortSampledRecords.pivotIndex(1) == 4)
+        assert(MasterSortSampledRecords.pivotIndex(2) == 8)
     }
 }

@@ -1,42 +1,76 @@
-import config.MasterConfig
+import WorkerState._
 import org.slf4j.LoggerFactory
 
-import java.io.File
 import scala.concurrent.ExecutionContext
 
 object Worker {
+    @volatile var WORKER_STATE: WorkerState = SERVER_START
+
     def main(args: Array[String]): Unit = {
         val log = LoggerFactory.getLogger(getClass)
 
-        // argument handling
-        val masterIpPortInfo: MasterConfig = new MasterConfig(args(0).split(":")(0),
-            args(0).split(":")(1).toInt)
-        var inputFilePathList: Array[File] = Array()
-        args.slice(2, args.length - 2).foreach{ case filePath: String => {
-            val directory = new File(filePath)
-            if (directory.isDirectory && directory.exists()) {
-                inputFilePathList = inputFilePathList ++ directory.listFiles(_.isFile)
-            }
-        }}
+        log.info("Handling argument")
+        WorkerArgumentHandler.handleArgument(args)
 
-        val outputFilePath: File = new File(args.last)
+        log.info("Start worker side server")
+        val workerServer = new WorkerServer(ExecutionContext.global)
+        workerServer.start()
 
-        // connection phase (server not required in worker)
+        log.info("Worker server barrier: SERVER_START <-> SERVER_FINISH")
+        while (WORKER_STATE == SERVER_START) {
+            Thread.sleep(500)
+        }
+        log.info("Successfully turned on worker side server")
+
+        log.info("Epsilon transition: SERVER_FINISH -> CONNECTION_START")
+        WORKER_STATE = CONNECTION_START
+        Thread.sleep(5000)
+
         log.info("Connection phase start")
-        new WorkerConnection(masterIpPortInfo, null)
+        val workerConnection = new Request_WorkerConnection(null)
+        workerConnection.initiateConnection()
+
+        log.info("Worker Connection Phase Barrier: CONNECTION_START <-> CONNECTION_FINISH")
+        while (WORKER_STATE == CONNECTION_START) {
+            Thread.sleep(500)
+        }
         log.info("Connection phase successfully finished")
 
-        // worker server start
-        log.info("Worker Server start for communication")
-        val workerServer = new WorkerServer(inputFilePathList, outputFilePath, ExecutionContext.global)
-        log.info("Worker Server start completed for communication")
+        log.info("Epsilon transition: CONNECTION_FINISH -> SAMPLING_START")
+        WORKER_STATE = SAMPLING_START
+        Thread.sleep(5000)
 
-        // sampling phase (server required in worker)
+        log.info("Sampling phase start")
+        log.info("Worker Sampling Barrier 1: SAMPLING_START <-> SAMPLING_SAMPLE")
+        while (WORKER_STATE == SAMPLING_START) {
+            Thread.sleep(500)
+        }
 
-        // shuffling (depending on implementation)
+        Request_WorkerSamplingFirst.sendSampledDataToMaster()
 
-        // merging phase (server required in worker)
+        log.info("Worker Sampling Barrier 2: SAMPLING_SAMPLE <-> SAMPLING_FINISH")
+        while (WORKER_STATE == SAMPLING_SAMPLE) {
+            Thread.sleep(500)
+        }
+        Request_WorkerSamplingSecond.sendSampledDataToMaster()
+        log.info("Sampling phase successfully finished")
 
-        // checking (server required in worker)
+        log.info("Epsilon transition: SAMPLING_FINISH -> SORT_PARTITION_START")
+        WORKER_STATE = SORT_PARTITION_START
+        Thread.sleep(5000)
+
+        log.info("Sorting phase start")
+        log.info("Worker Sort/Partition Barrier: SORT_PARTITION_START <-> SORT_PARTITION_FINISH")
+        while (WORKER_STATE == SORT_PARTITION_START) {
+            Thread.sleep(500)
+        }
+        WorkerSortAndPartition.sortAndPartitionFromInputFileList(WorkerArgumentHandler.inputFileArray,
+            WorkerArgumentHandler.outputFile)
+        Request_WorkerSort.sendSortFinished()
+        log.info("Sorting phase finished")
+
+        log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")
+        WORKER_STATE = MERGE_START
+        Thread.sleep(5000)
     }
 }

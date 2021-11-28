@@ -10,9 +10,9 @@ class WorkerSamplingSuite extends AnyFunSuite {
     test("Sampling Function (From file) Unit Test") {
         val testFile = new File("Worker//data//partition1")
 
-        val stringList = WorkerSampling.sampleFromFile(testFile)
+        val stringList = Request_WorkerSamplingFirst.sampleFromFile(testFile)
 
-        assertResult(3000) (stringList.size)
+        assertResult(3000)(stringList.size)
         assert("AsfAGHM5om".equals(stringList(0)))
         assert("Ga]QGzP2q)".equals(stringList(2999)))
     }
