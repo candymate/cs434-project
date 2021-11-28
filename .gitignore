@@ -38,3 +38,4 @@ project/plugins/project/
 project/**/metals.sbt
 
 Worker/output/unshuffled*
+Worker/output2/unshuffled*

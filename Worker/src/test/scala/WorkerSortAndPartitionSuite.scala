@@ -10,14 +10,14 @@ class WorkerSortAndPartitionSuite extends AnyFunSuite {
 
     test("sortAndPartitionFromInputFile test") {
         val testDirectory = new File("Worker//data//sortA1")
-        val testOutputDirectory = new File("Worker//output//output2")
+        val testOutputDirectory = new File("Worker//output2")
 
         val pivotList = List("AsfAGHM5om", "eSzU!X,[%/")
 
         WorkerSortAndPartition.
             sortAndPartitionFromInputFile(testDirectory, testOutputDirectory, pivotList)
 
-        val file1Size = fromFile("Worker//output//output2//unshuffled.0.0").getLines().size
+        val file1Size = fromFile("Worker//output2//unshuffled.0.0").getLines().size
 
         assert(142 == file1Size)
     }
