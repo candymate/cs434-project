@@ -79,6 +79,9 @@ object Worker {
             Thread.sleep(500)
         }
         WorkerShuffle.shuffle()
+        while (WORKER_STATE == SHUFFLE_SERVICE) {
+            Thread.sleep(500)
+        }
         Request_WorkerShuffle.sendShuffleFinished()
         log.info("Shuffling phase finished")
 
