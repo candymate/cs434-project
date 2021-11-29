@@ -10,7 +10,7 @@ object WorkerShuffle {
 
     // all file list
     def shuffle(): Unit = {
-        assert(WORKER_STATE == SHUFFLE_FINISH)
+        assert(WORKER_STATE == SHUFFLE_SERVICE)
 
         val connInfo = WorkerToWorkerChannel.ipList zip WorkerToWorkerChannel.portList
 

@@ -1,5 +1,5 @@
 import Worker.WORKER_STATE
-import WorkerState.SHUFFLE_FINISH
+import WorkerState.{SHUFFLE_SERVICE, SHUFFLE_FINISH}
 import channel._
 import io.grpc.{StatusRuntimeException, ManagedChannelBuilder}
 import protobuf.connect._
@@ -14,7 +14,7 @@ object WorkerInterRequest {
     var fileNamePartition = 0
 
     def sendInterShuffle(ip: String, port: Int, idx: Int): Unit = {
-        assert(WORKER_STATE == SHUFFLE_FINISH)
+        assert(WORKER_STATE == SHUFFLE_FINISH || WORKER_STATE == SHUFFLE_SERVICE)
         assert(ip != null)
 
         val managedChannelBuilder = ManagedChannelBuilder.forAddress(ip, port)
@@ -82,7 +82,7 @@ class WorkerInterService extends shuffleInterWorkerGrpc.shuffleInterWorker {
     private val lock = new ReentrantLock()
 
     override def interShuffling(request: ShufflingInterRequest): Future[ShufflingInterResponse] = synchronized {
-        assert(WORKER_STATE == SHUFFLE_FINISH)
+        assert(WORKER_STATE == SHUFFLE_SERVICE)
 
         lock.lock()
         val workerNum = WorkerToWorkerChannel.ipList.size
@@ -113,7 +113,9 @@ class WorkerInterService extends shuffleInterWorkerGrpc.shuffleInterWorker {
                         val f = fileList(request.id)(fileIndices(request.id))
                         assert(f.exists && f.isFile)
 
-                        fileContent = Source.fromFile(f).getLines.mkString("\r\n")
+                        val fstream = Source.fromFile(f)
+                        fileContent = fstream.getLines.mkString("\r\n")
+                        fstream.close()
                         
                         if (fileIndices(request.id) > 0) {
                             val f = fileList(request.id)(fileIndices(request.id) - 1)
@@ -133,7 +135,9 @@ class WorkerInterService extends shuffleInterWorkerGrpc.shuffleInterWorker {
                     val f = fileList(request.id)(fileIndices(request.id) - 1)
                     assert(f.exists && f.isFile)
 
-                    fileContent = Source.fromFile(f).getLines.mkString("\r\n")
+                    val fstream = Source.fromFile(f)
+                    fileContent = fstream.getLines.mkString("\r\n")
+                    fstream.close()
                     status = true
                 }
                 case ShufflingInterRequest.ReqType.OK => {
@@ -146,6 +150,11 @@ class WorkerInterService extends shuffleInterWorkerGrpc.shuffleInterWorker {
             }
         } finally {
             lock.unlock()
+        }
+
+        if (fileIndices == List.fill[Int](workerNum)(-1)) {
+            assert(WORKER_STATE == SHUFFLE_SERVICE)
+            WORKER_STATE = SHUFFLE_FINISH
         }
 
         Future.successful {
