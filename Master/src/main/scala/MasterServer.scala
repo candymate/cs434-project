@@ -3,10 +3,11 @@ import MasterState._
 import Service_MasterSampleFirst.Service_MasterSample
 import Service_MasterSampleSecond.Service_MasterSampleSecond
 import Service_MasterSort.Service_MasterSort
+import Service_MasterShuffle.Service_MasterShuffle
 import config.MasterServerConfig
 import io.grpc.{Server, ServerBuilder}
 import org.slf4j.{Logger, LoggerFactory}
-import protobuf.connect.{connectionStartToConnectionFinishMasterGrpc, samplingPivotToSamplingFinishMasterGrpc, samplingStartToSamplingPivotMasterGrpc, sortPartitionStartToSortPartitionFinishMasterGrpc}
+import protobuf.connect._
 
 import scala.concurrent.ExecutionContext
 
@@ -25,6 +26,7 @@ class MasterServer(executionContext: ExecutionContext) {
         serverBuilder.addService(samplingStartToSamplingPivotMasterGrpc.bindService(new Service_MasterSample, executionContext))
         serverBuilder.addService(samplingPivotToSamplingFinishMasterGrpc.bindService(new Service_MasterSampleSecond, executionContext))
         serverBuilder.addService(sortPartitionStartToSortPartitionFinishMasterGrpc.bindService(new Service_MasterSort, executionContext))
+        serverBuilder.addService(shuffleStartToShuffleFinishMasterGrpc.bindService(new Service_MasterShuffle, executionContext))
 
         server = serverBuilder.build().start()
         log.info("Server started, listening on " + MasterServerConfig.port)

@@ -1,6 +1,7 @@
 import channel.WorkerToMasterChannel
 import org.slf4j.LoggerFactory
 
+import config.WorkerServerConfig
 import java.io.File
 
 object WorkerArgumentHandler {
@@ -9,7 +10,7 @@ object WorkerArgumentHandler {
     var port: Int = 0
     var inputFileArray: Array[File] = Array()
     var outputFile: File = null
-    var optionalWorkerServerPort: Int = 8000
+    var optionalWorkerServerPort: Int = WorkerServerConfig.port
 
     def handleArgument(args: Array[String]): Unit = {
         ip = args(0).split(":")(0)
@@ -32,7 +33,7 @@ object WorkerArgumentHandler {
         } else {
             log.info("Optional port for worker server is included in args")
             optionalWorkerServerPort = args.last.toInt
-            outputFile = new File(args(args.length - 1))
+            outputFile = new File(args(args.length - 2))
         }
     }
 

@@ -69,7 +69,20 @@ object Worker {
         Request_WorkerSort.sendSortFinished()
         log.info("Sorting phase finished")
 
-        log.info("Epsilon transition: SORT_PARTITION_FINISH -> MERGE_START")
+        log.info("Epsilon transition: SORT_PARTITION_FINISH -> SHUFFLE_START")
+        WORKER_STATE = SHUFFLE_START
+        Thread.sleep(5000)
+
+        log.info("Shuffling phase start")
+        log.info("Worker Shuffle Barrier: SHUFFLE_START <-> SHUFFLE_FINISH")
+        while (WORKER_STATE == SHUFFLE_START) {
+            Thread.sleep(500)
+        }
+        WorkerShuffle.shuffle()
+        Request_WorkerShuffle.sendShuffleFinished()
+        log.info("Shuffling phase finished")
+
+        log.info("Epsilon transition: SHUFFLE_FINISH -> MERGE_START")
         WORKER_STATE = MERGE_START
         Thread.sleep(5000)
     }
