@@ -21,18 +21,21 @@ object WorkerSortAndPartition {
         }
     }
 
+    def priority(record: String) = record.slice(0, 10)
+
     // single file
     def sortAndPartitionFromInputFile(inputPathFile: File, outputPathFile: File,
-                                      pivotMap: List[String]) = {
-        val sortedDataFromFile = fromFile(inputPathFile.getPath).getLines().toList
-            .sortWith(_.slice(0, 10) < _.slice(0, 10))
+                                      pivotMap: => List[String]) = {
+        val bufferedSource = fromFile(inputPathFile.getPath)
+        val sortedDataFromFile = bufferedSource.getLines().toList.sortWith(_.slice(0, 10) < _.slice(0, 10))
         makeSortedPartition(sortedDataFromFile, pivotMap, outputPathFile.getPath, 0)
 
         fileNamePartition += 1
+        bufferedSource.close()
     }
 
     @tailrec
-    def makeSortedPartition(sortedDataFromFile: List[String], pivotMap: List[String],
+    def makeSortedPartition(sortedDataFromFile: => List[String], pivotMap: => List[String],
                             outputPathFile: String, targetMachine: Int): Any = {
         pivotMap match {
             case head :: tail => {
@@ -48,7 +51,7 @@ object WorkerSortAndPartition {
         }
     }
 
-    def writeToFile(outputPathFile: String, data: List[String], targetMachine: Int) = {
+    def writeToFile(outputPathFile: String, data: => List[String], targetMachine: Int) = {
         val newPath = outputPathFile + "/" + generateName(targetMachine)
         val bufferedWriter = new BufferedWriter(new FileWriter(new File(newPath)))
         data.foreach(
