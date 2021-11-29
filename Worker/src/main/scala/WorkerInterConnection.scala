@@ -113,7 +113,9 @@ class WorkerInterService extends shuffleInterWorkerGrpc.shuffleInterWorker {
                         val f = fileList(request.id)(fileIndices(request.id))
                         assert(f.exists && f.isFile)
 
-                        fileContent = Source.fromFile(f).getLines.mkString("\r\n")
+                        val fstream = Source.fromFile(f)
+                        fileContent = fstream.getLines.mkString("\r\n")
+                        fstream.close()
                         
                         if (fileIndices(request.id) > 0) {
                             val f = fileList(request.id)(fileIndices(request.id) - 1)
@@ -133,7 +135,9 @@ class WorkerInterService extends shuffleInterWorkerGrpc.shuffleInterWorker {
                     val f = fileList(request.id)(fileIndices(request.id) - 1)
                     assert(f.exists && f.isFile)
 
-                    fileContent = Source.fromFile(f).getLines.mkString("\r\n")
+                    val fstream = Source.fromFile(f)
+                    fileContent = fstream.getLines.mkString("\r\n")
+                    fstream.close()
                     status = true
                 }
                 case ShufflingInterRequest.ReqType.OK => {
