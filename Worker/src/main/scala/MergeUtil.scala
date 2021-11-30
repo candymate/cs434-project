@@ -54,4 +54,12 @@ object MergeUtil {
             }
         }
     }
+
+    def getListOfFiles(dir: File): List[File] = {
+        if (dir.exists && dir.isDirectory) {
+            dir.listFiles.filter(_.isFile).toList.sorted
+        } else {
+            List[File]()
+        }
+    }
 }

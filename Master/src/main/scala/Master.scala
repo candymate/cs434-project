@@ -1,4 +1,5 @@
 import MasterState._
+import channel.MasterToWorkerChannel
 import config.ClientInfo
 import org.slf4j.LoggerFactory
 
@@ -100,8 +101,21 @@ object Master {
         MASTER_STATE = MERGE_START
         Thread.sleep(5000)
 
-        // merging phase (server not required in master)
+        log.info("Merging phase start")
 
+        log.info("Master Merge Barrier: MERGE_START <-> MERGE_FINISH")
+        while (MASTER_STATE == MERGE_START) {
+            Thread.sleep(500)
+        }
+        log.info("Merging phase finished")
+
+        Thread.sleep(5000)
+        masterServer.stop()
+
+        Thread.sleep(5000)
+        MasterToWorkerChannel.closeMasterToWorkerChannelArray()
+
+        log.info("SORTING FINISHED : SERVER CLOSE")
 
     }
 }
