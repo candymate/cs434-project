@@ -149,7 +149,7 @@ object MultiFileWrite {
     var fileNameCounter = 0
 
     def getFreshFileName(): String = {
-        val fileName = "merging." + fileNameCounter.toString
+        val fileName = "partition." + fileNameCounter.toString
         fileNameCounter += 1
         fileName
     }
