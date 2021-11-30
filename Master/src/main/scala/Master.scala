@@ -102,6 +102,8 @@ object Master {
         Thread.sleep(5000)
 
         log.info("Merging phase start")
+        val mergingClass = new Request_MasterMerge(Array())
+        mergingClass.broadcastMergeStart()
 
         log.info("Master Merge Barrier: MERGE_START <-> MERGE_FINISH")
         while (MASTER_STATE == MERGE_START) {

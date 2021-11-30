@@ -9,7 +9,7 @@ import scala.concurrent.Future
 object Service_MasterMerge {
     var numberOfClientsThatFinishedMerge: Int = 0
 
-    class Service_MasterShuffle extends mergeStartToMergeFinishMasterGrpc.mergeStartToMergeFinishMaster {
+    class Service_MasterMerge extends mergeStartToMergeFinishMasterGrpc.mergeStartToMergeFinishMaster {
         val log: Logger = LoggerFactory.getLogger(getClass)
         private val lock = new ReentrantLock()
 

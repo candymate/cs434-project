@@ -3,7 +3,7 @@ import MasterState._
 import channel.MasterToWorkerChannel
 import io.grpc.ManagedChannel
 import org.slf4j.LoggerFactory
-import protobuf.connect.{Empty, shuffleStartToShuffleFinishWorkerGrpc}
+import protobuf.connect.{Empty, mergeStartToMergeFinishWorkerGrpc}
 
 class Request_MasterMerge(channelArrayParam: Array[ManagedChannel]) {
     val log = LoggerFactory.getLogger(getClass)
@@ -11,12 +11,12 @@ class Request_MasterMerge(channelArrayParam: Array[ManagedChannel]) {
 
     def broadcastMergeStart() = {
         def broadcastMergeMessage(x: ManagedChannel) = {
-            val blockingStub = shuffleStartToShuffleFinishWorkerGrpc.blockingStub(x)
+            val blockingStub = mergeStartToMergeFinishWorkerGrpc.blockingStub(x)
 
             // assert(MasterShuffleSampledRecords.pivotList != null)
             // TODO: check invariants here
 
-            blockingStub.startShuffling(new Empty())
+            blockingStub.startMerging(new Empty())
         }
 
         if (channelArray.size == 0) {

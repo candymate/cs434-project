@@ -29,6 +29,7 @@ class WorkerServer(executionContext: ExecutionContext) {
         serverBuilder.addService(sortPartitionStartToSortPartitionFinishWorkerGrpc.bindService(new Service_WorkerSort, executionContext))
         serverBuilder.addService(shuffleStartToShuffleFinishWorkerGrpc.bindService(new Service_WorkerShuffle, executionContext))
         serverBuilder.addService(shuffleInterWorkerGrpc.bindService(new WorkerInterService, executionContext))
+        serverBuilder.addService(mergeStartToMergeFinishWorkerGrpc.bindService(new Service_WorkerMerge, executionContext))
 
         server = serverBuilder.build().start()
 
