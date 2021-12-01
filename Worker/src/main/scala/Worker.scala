@@ -1,3 +1,4 @@
+import WorkerArgumentHandler.outputFile
 import WorkerState._
 import org.slf4j.LoggerFactory
 
@@ -88,5 +89,19 @@ object Worker {
         log.info("Epsilon transition: SHUFFLE_FINISH -> MERGE_START")
         WORKER_STATE = MERGE_START
         Thread.sleep(5000)
+
+        log.info("Merging phase start")
+        log.info("Worker Merge Barrier: MERGE_START <-> MERGE_FINISH")
+        while (WORKER_STATE == MERGE_START) {
+            Thread.sleep(500)
+        }
+        MergeUtil.mergeFiles(outputFile, MergeUtil.getListOfFiles(outputFile).map(x => new MultiFileRead(List(x))))
+        Request_WorkerMerge.sendMergeFinished()
+
+        Thread.sleep(5000)
+        log.info("SORTING FINISHED SHUTTING DOWN WORKER")
+        workerServer.stop()
+        Thread.sleep(5000)
+
     }
 }

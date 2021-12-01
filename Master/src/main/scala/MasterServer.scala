@@ -1,5 +1,6 @@
 import Master.MASTER_STATE
 import MasterState._
+import Service_MasterMerge.Service_MasterMerge
 import Service_MasterSampleFirst.Service_MasterSample
 import Service_MasterSampleSecond.Service_MasterSampleSecond
 import Service_MasterSort.Service_MasterSort
@@ -27,6 +28,7 @@ class MasterServer(executionContext: ExecutionContext) {
         serverBuilder.addService(samplingPivotToSamplingFinishMasterGrpc.bindService(new Service_MasterSampleSecond, executionContext))
         serverBuilder.addService(sortPartitionStartToSortPartitionFinishMasterGrpc.bindService(new Service_MasterSort, executionContext))
         serverBuilder.addService(shuffleStartToShuffleFinishMasterGrpc.bindService(new Service_MasterShuffle, executionContext))
+        serverBuilder.addService(mergeStartToMergeFinishMasterGrpc.bindService(new Service_MasterMerge, executionContext))
 
         server = serverBuilder.build().start()
         log.info("Server started, listening on " + MasterServerConfig.port)
