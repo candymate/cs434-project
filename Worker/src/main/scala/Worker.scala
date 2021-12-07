@@ -98,6 +98,7 @@ object Worker {
         val mfrl = MergeUtil.getListOfFiles(outputFile).map(x => new MultiFileRead(List(x)))
         MergeUtil.mergeFiles(outputFile, mfrl)
         mfrl.foreach(x => x.close())
+        MergeUtil.renameFiles(outputFile)
         Request_WorkerMerge.sendMergeFinished()
 
         Thread.sleep(5000)

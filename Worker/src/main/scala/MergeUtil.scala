@@ -65,4 +65,16 @@ object MergeUtil {
             List[File]()
         }
     }
+
+    var fileNameCounter = 0
+
+    def getFreshFileName(): String = {
+        val fileName = "partition." + fileNameCounter.toString
+        fileNameCounter += 1
+        fileName
+    }
+
+    def renameFiles(dir: File): Unit = {
+        getListOfFiles(dir).foreach(x => x.renameTo(new File(dir.getPath + "/" + getFreshFileName())))
+    }
 }
