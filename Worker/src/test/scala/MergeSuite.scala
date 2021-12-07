@@ -44,17 +44,20 @@ class MultiFileSuite extends AnyFunSuite {
         val mf1 = new MultiFileRead(List(sampleReadFile1))
         assert(mf1.readOneRecord.get.key == "AsfAGHM5om")
         assert(mf1.readOneRecord.get.key == "~sHd0jDv6X")
+        mf1.close()
     }
 
     test("multiple file length test") {
         val mf1 = new MultiFileRead(List(sampleReadFile1, sampleReadFile2))
         assert(mf1.length == 2000)
+        mf1.close()
     }
 
     test("record write test") {
         val mf1 = new MultiFileWrite("Worker/src/test/files/merge")
         mf1.writeOneRecord(new Record("ABCDEFGHIJ", "  00000000000000000000000000000000  0000222200002222000022220000222200002222000000001111\r\n"))
         mf1.writeOneRecord(new Record("BCDEFGHIJK", "  00000000000000000000000000000000  0000222200002222000022220313222200002222000000001111\r\n"))
+        mf1.close()
         assert(md5sum(Source.fromFile(mf1.getFileList()(0).getAbsolutePath()).mkString) == "e12795094960457f6333520ec4f8dbc0")
         mf1.getFileList()(0).delete()
     }
@@ -62,6 +65,7 @@ class MultiFileSuite extends AnyFunSuite {
     ignore("write and rename multiple files test") {
         val mf1 = new MultiFileWrite("Worker/src/test/files/merge")
         (1 to 400000).foreach(x => mf1.writeOneRecord(new Record("ABCDEFGHIJ", "  00000000000000000000000000000000  0000222200002222000022220000222200002222000000001111\r\n")))
+        mf1.close()
 
         assert(md5sum(Source.fromFile(mf1.getFileList()(0).getAbsolutePath()).mkString) == "ac7ec3cef9e3bd8e05400e0eb9040a32")
         assert(md5sum(Source.fromFile(mf1.getFileList()(1).getAbsolutePath()).mkString) == "af53f02ccc505202fba4cdc612fe3707")
@@ -84,5 +88,6 @@ class MultiFileSuite extends AnyFunSuite {
         assert(fileList(0).createNewFile() && fileList(1).createNewFile())
         mf1.removeFiles()
         assert(!fileList(0).exists && !fileList(1).exists)
+        mf1.close()
     }
 }
