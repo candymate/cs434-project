@@ -37,11 +37,14 @@ object MergeUtil {
                 }
             }
 
+            mf1.close()
+            mf2.close()
             mf1.removeFiles()
             mf2.removeFiles()
 
             log.info("merging done with files:" + mfw.getFileList.toString)
-
+            
+            mfw.close()
             new MultiFileRead(mfw.getFileList)
         }
 

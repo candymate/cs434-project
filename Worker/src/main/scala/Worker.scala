@@ -95,7 +95,9 @@ object Worker {
         while (WORKER_STATE == MERGE_START) {
             Thread.sleep(500)
         }
-        MergeUtil.mergeFiles(outputFile, MergeUtil.getListOfFiles(outputFile).map(x => new MultiFileRead(List(x))))
+        val mfrl = MergeUtil.getListOfFiles(outputFile).map(x => new MultiFileRead(List(x)))
+        MergeUtil.mergeFiles(outputFile, mfrl)
+        mfrl.foreach(x => x.close())
         Request_WorkerMerge.sendMergeFinished()
 
         Thread.sleep(5000)
