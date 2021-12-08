@@ -2,6 +2,7 @@ import Worker.WORKER_STATE
 import WorkerState._
 import channel.WorkerToMasterChannel
 import io.grpc.StatusRuntimeException
+import protobuf.connect.{SamplingResponse, samplingStartToSamplingPivotMasterGrpc}
 import org.slf4j.LoggerFactory
 
 import java.io.File

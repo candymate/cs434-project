@@ -1,5 +1,6 @@
 import Worker.WORKER_STATE
 import WorkerState.{SAMPLING_FINISH, SAMPLING_SAMPLE}
+import protobuf.connect.{Empty, PivotResult, samplingSampleToSamplingFinishWorkerGrpc}
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
