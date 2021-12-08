@@ -2,6 +2,24 @@
 
 Team members: Jeong Jaewoo (20170309), Park Junyoung (20170441)
 
+## How to Run?
+```
+Master:  sbt "Master/run (# of client)"
+Worker:  sbt "Worker/run (Master IP) -I (Input Directory) -O (Output Directory)"
+```
+
+## Result
+1. 3 Workers each with 3GB data
+
+    ![image](https://user-images.githubusercontent.com/67964247/145233629-bb639e11-cd39-4430-b3ae-2c9f8954b79e.png)
+    
+    machine 1: 21269492 sorted records, machine 2: 21306256 sorted records, machine 3: 21424252 sorted records  => add up to 64000000 records (no lost data)
+    
+2. 3 Workers each with 30GB data
+   - In progress
+    
+    
+
 ## Environment
 
 ```
