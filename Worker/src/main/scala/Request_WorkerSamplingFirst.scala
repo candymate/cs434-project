@@ -2,7 +2,7 @@ import Worker.WORKER_STATE
 import WorkerState._
 import channel.WorkerToMasterChannel
 import io.grpc.StatusRuntimeException
-import protobuf.connect.{SamplingResponse, samplingStartToSamplingPivotMasterGrpc}
+import org.slf4j.LoggerFactory
 
 import java.io.File
 import scala.io.BufferedSource
@@ -10,6 +10,7 @@ import scala.io.Source.fromFile
 
 object Request_WorkerSamplingFirst {
     val numberOfRecords = 100000
+    val log = LoggerFactory.getLogger(getClass)
 
     def sampleFromFile(inputFilePath: File): List[String] = {
         val fromFileBuffer: BufferedSource = fromFile(inputFilePath.getPath)
@@ -35,6 +36,7 @@ object Request_WorkerSamplingFirst {
         val blockingStub = samplingStartToSamplingPivotMasterGrpc.blockingStub(WorkerToMasterChannel.channel)
 
         try {
+            log.info("Sending sampled data to master")
             val request = blockingStub.samplingResult(new SamplingResponse(
                 sampledData
             ))
